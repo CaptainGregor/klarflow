@@ -11,47 +11,18 @@ const supabase = createClient(
 function buildEmailDay2(insight: string) {
   return `
   <div style="font-family: Arial; line-height:1.6; max-width:600px; margin:auto;">
-    
     <h2>Der Moment davor</h2>
-
     <p>Hallo,</p>
-
-    <p>
-    gestern hast du etwas bei dir klar gesehen:
-    </p>
-
+    <p>gestern hast du etwas bei dir klar gesehen:</p>
     <p style="background:#f5f5f5; padding:12px; border-radius:8px;">
-    ${insight}
+      ${insight}
     </p>
-
-    <p>
-    Genau dort beginnt Veränderung.
-    </p>
-
-    <p>
-    Heute geht es nicht darum, etwas zu ändern.
-    </p>
-
-    <p>
-    Nur darum, einen Moment zu bemerken:
-    <br/>
-    den Moment <strong>bevor</strong> du automatisch reagierst.
-    </p>
-
-    <p>
-    Wenn dieser Moment heute kommt:
-    <br/>
-    halte für eine Sekunde inne.
-    </p>
-
-    <p>
-    Mehr ist nicht nötig.
-    </p>
-
-    <p>
-    — Klarflow
-    </p>
-
+    <p>Genau dort beginnt Veränderung.</p>
+    <p>Heute geht es nicht darum, etwas zu ändern.</p>
+    <p>Nur darum, den Moment <strong>bevor</strong> du automatisch reagierst, zu bemerken.</p>
+    <p>Wenn dieser Moment heute kommt:<br/>halte für eine Sekunde inne.</p>
+    <p>Mehr ist nicht nötig.</p>
+    <p>— Klarflow</p>
   </div>
   `;
 }
@@ -59,48 +30,64 @@ function buildEmailDay2(insight: string) {
 function buildEmailDay3(insight: string) {
   return `
   <div style="font-family: Arial; line-height:1.6; max-width:600px; margin:auto;">
-    
     <h2>Du musst das nicht perfekt machen</h2>
+    <p>Hallo,</p>
+    <p>du hast bereits erkannt, dass dein Verhalten nicht zufällig ist:</p>
+    <p style="background:#f5f5f5; padding:12px; border-radius:8px;">
+      ${insight}
+    </p>
+    <p>Das ist mehr, als die meisten jemals sehen.</p>
+    <p>Veränderung beginnt nicht mit Perfektion.</p>
+    <p>Sondern mit einem einzigen bewussten Moment.</p>
+    <p>Wenn du heute wieder zurückfällst:<br/>→ das ist kein Fehler<br/>→ das ist Teil des Weges</p>
+    <p>Komm einfach wieder zurück.</p>
+    <p>— Klarflow</p>
+  </div>
+  `;
+}
+
+function buildEmailDay7(insight: string) {
+  return `
+  <div style="font-family: Arial; line-height:1.6; max-width:600px; margin:auto;">
+    <h2>Was sich verändert, wenn du hinschaust</h2>
 
     <p>Hallo,</p>
 
     <p>
-    du hast bereits erkannt, dass dein Verhalten nicht zufällig ist:
+      vor einigen Tagen hast du dir einen Moment genommen, um ehrlich auf dein Muster zu schauen.
     </p>
 
     <p style="background:#f5f5f5; padding:12px; border-radius:8px;">
-    ${insight}
+      ${insight}
     </p>
 
     <p>
-    Das ist mehr, als die meisten jemals sehen.
+      Vielleicht hat sich seitdem schon etwas gezeigt.
+      Vielleicht auch noch nicht.
     </p>
 
     <p>
-    Veränderung beginnt nicht mit Perfektion.
+      Beides ist in Ordnung.
     </p>
 
     <p>
-    Sondern mit einem einzigen bewussten Moment.
+      Veränderung beginnt oft nicht sichtbar.
+      Sie beginnt in dem Moment, in dem du etwas nicht mehr völlig automatisch tust.
     </p>
 
     <p>
-    Wenn du heute wieder zurückfällst:
+      Für heute reicht eine Frage:
+    </p>
+
+    <p style="font-weight:bold;">
+      Was ist der eine Moment, in dem ich heute kurz wach bleiben kann?
     </p>
 
     <p>
-    → das ist kein Fehler<br/>
-    → das ist Teil des Weges
+      Nicht perfekt. Nicht streng. Nur bewusst.
     </p>
 
-    <p>
-    Komm einfach wieder zurück.
-    </p>
-
-    <p>
-    — Klarflow
-    </p>
-
+    <p>— Klarflow</p>
   </div>
   `;
 }
@@ -108,9 +95,9 @@ function buildEmailDay3(insight: string) {
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
 
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  return new Response("Unauthorized", { status: 401 });
+}
 
   const now = new Date();
 
@@ -158,6 +145,22 @@ export async function GET(request: Request) {
       await supabase
         .from("leads")
         .update({ email_sent_3: true })
+        .eq("id", lead.id);
+    }
+
+    if (diffHours > 168 && !lead.email_sent_7) {
+      const result7 = await resend.emails.send({
+        from: "Klarflow <hello@klarflow.de>",
+        to: lead.email,
+        subject: "Was sich verändert, wenn du hinschaust",
+        html: buildEmailDay7(lead.insight || ""),
+      });
+
+      console.log("Day 7 Resend result:", result7);
+
+      await supabase
+        .from("leads")
+        .update({ email_sent_7: true })
         .eq("id", lead.id);
     }
   }

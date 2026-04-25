@@ -244,11 +244,15 @@ export default function Home() {
       return;
     }
 
-    const emailResponse = await fetch("/api/send-plan-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: trimmed, insight }),
-    });
+const emailResponse = await fetch("/api/send-plan-email", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    email: trimmed,
+    insight,
+    readiness: answers[answers.length - 1],
+  }),
+});
 
     if (!emailResponse.ok) {
       const emailData = await emailResponse.json().catch(() => null);

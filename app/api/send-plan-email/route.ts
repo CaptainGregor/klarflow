@@ -2,45 +2,140 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Build the email HTML
-function buildEmailHtml(insight: string) {
+// 🧠 Dynamic next step based on readiness
+function getNextStep(readiness: string) {
+  if (readiness === "Ich denke darüber nach") {
+    return `
+      Du musst noch nichts verändern.<br/>
+      Nimm heute nur einen Moment wahr, in dem dieses Muster auftaucht.
+    `;
+  }
+
+  if (readiness === "Ich will kleine Schritte gehen") {
+    return `
+      Beobachte heute einen Moment bewusst — und pausiere kurz davor.<br/>
+      Kein Druck, nur ein kleines Innehalten.
+    `;
+  }
+
+  if (readiness === "Ich bin bereit, ernsthaft anzusetzen") {
+    return `
+      Setze dir heute einen klaren Moment, in dem du bewusst unterbrichst.<br/>
+      Entscheide dich aktiv anders — auch wenn es sich ungewohnt anfühlt.
+    `;
+  }
+
+  if (readiness === "Ich will jetzt einen echten Wandel") {
+    return `
+      Triff heute eine klare Entscheidung:<br/>
+      In einem Moment handelst du bewusst anders — egal wie stark das Muster ist.
+    `;
+  }
+
   return `
-    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #222; max-width: 640px; margin: 0 auto; padding: 24px;">
+    Beobachte heute nur einen einzigen Moment ganz bewusst.<br/>
+    Noch nichts ändern. Nur erkennen.
+  `;
+}
+
+// 🧠 Dynamic tone block
+function getMotivationBlock(readiness: string) {
+  if (readiness === "Ich denke darüber nach") {
+    return `
+      Du bist gerade am Anfang — und das ist völlig in Ordnung.<br/>
+      Veränderung beginnt nicht mit Aktion, sondern mit Ehrlichkeit.
+    `;
+  }
+
+  if (readiness === "Ich will kleine Schritte gehen") {
+    return `
+      Du hast dich bereits innerlich bewegt.<br/>
+      Kleine Schritte sind oft die stärksten — wenn sie bewusst sind.
+    `;
+  }
+
+  if (readiness === "Ich bin bereit, ernsthaft anzusetzen") {
+    return `
+      Du hast eine klare Entscheidung getroffen.<br/>
+      Genau daraus entsteht echte Veränderung.
+    `;
+  }
+
+  if (readiness === "Ich will jetzt einen echten Wandel") {
+    return `
+      Das ist ein kraftvoller Moment.<br/>
+      Wichtig ist jetzt nicht Perfektion — sondern bewusste Handlung.
+    `;
+  }
+
+  return `
+    Ein erster bewusster Moment reicht völlig aus.
+  `;
+}
+
+// 🎨 Email builder
+function buildEmailHtml(insight: string, readiness: string) {
+  const formattedInsight = insight.replace(/\n/g, "<br />");
+
+  const nextStep = getNextStep(readiness);
+  const motivation = getMotivationBlock(readiness);
+
+  return `
+    <div style="font-family: Arial, sans-serif; line-height: 1.65; color: #171717; max-width: 640px; margin: 0 auto; padding: 28px;">
       
-      <h2 style="margin-bottom: 16px;">Dein persönlicher erster Schritt</h2>
+      <p style="font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: #08a99d; font-weight: 700;">
+        Klarflow Report
+      </p>
+
+      <h1 style="font-size: 30px; line-height: 1.2; margin: 12px 0 18px;">
+        Du hast ein Muster sichtbar gemacht.
+      </h1>
 
       <p>Hallo,</p>
 
-      <p>danke für deine Offenheit.</p>
-
       <p>
-        Du hast heute bereits etwas Wichtiges getan: Du hast ehrlich hingeschaut.
-        Genau dort beginnt Veränderung.
+        danke für deine Offenheit. Du hast dir gerade einen Moment genommen,
+        um ehrlich hinzuschauen — und genau dort beginnt Veränderung.
       </p>
 
-      <h3 style="margin-top: 24px;">Was wir bei dir erkennen</h3>
-      <p>${insight.replace(/\n/g, "<br />")}</p>
+      <div style="background: #f2fbfa; border-radius: 22px; padding: 22px; margin: 26px 0;">
+        <p style="font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #08a99d; font-weight: 700; margin-top: 0;">
+          Was wir erkennen
+        </p>
 
-      <h3 style="margin-top: 24px;">Was dir jetzt helfen kann</h3>
-      <p>
-        Nicht Druck. Nicht Perfektion.<br/>
-        Sondern ein bewusster Moment, bevor du automatisch handelst.
-      </p>
+        <p style="margin-bottom: 0;">
+          ${formattedInsight}
+        </p>
+      </div>
 
-      <h3 style="margin-top: 24px;">Dein nächster kleiner Schritt</h3>
-      <p>
-        Beobachte heute nur einen einzigen Moment ganz bewusst, bevor du zum Handy greifst
-        oder in ein automatisches Muster rutschst.
-        <br/><br/>
-        Noch nichts ändern. Nur erkennen.
-      </p>
+      <h2 style="font-size: 20px; margin-top: 30px;">
+        Was dir jetzt helfen kann
+      </h2>
 
       <p>
-        Du musst das nicht perfekt machen.<br/>
-        Ein erster bewusster Moment ist bereits ein Fortschritt.
+        ${motivation}
       </p>
 
-      <p style="margin-top: 32px;">Alles Gute</p>
+      <h2 style="font-size: 20px; margin-top: 30px;">
+        Dein nächster Schritt
+      </h2>
+
+      <p>
+        ${nextStep}
+      </p>
+
+      <div style="background: #171717; color: #ffffff; border-radius: 22px; padding: 22px; margin-top: 30px;">
+        <p style="margin-top: 0; font-weight: 700;">
+          Du musst das nicht perfekt machen.
+        </p>
+        <p style="margin-bottom: 0; color: #d4d4d4;">
+          Ein einziger bewusster Moment kann bereits etwas verändern.
+        </p>
+      </div>
+
+      <p style="margin-top: 34px;">
+        — Klarflow
+      </p>
 
     </div>
   `;
@@ -49,7 +144,7 @@ function buildEmailHtml(insight: string) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, insight } = body;
+    const { email, insight, readiness } = body;
 
     if (!email || !insight) {
       return Response.json(
@@ -61,12 +156,11 @@ export async function POST(req: Request) {
     const result = await resend.emails.send({
       from: "Klarflow <hello@klarflow.de>",
       to: email,
-      subject: "Dein persönlicher erster Schritt",
-      html: buildEmailHtml(insight),
+      subject: "Dein Klarflow Report",
+      html: buildEmailHtml(insight, readiness || ""),
     });
 
     return Response.json({ success: true, result });
-
   } catch (error) {
     console.error("Email send error:", error);
 

@@ -8,62 +8,119 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-function buildEmailDay2(insight: string) {
+function emailShell(title: string, label: string, body: string) {
   return `
-  <div style="font-family: Arial; line-height:1.6; max-width:600px; margin:auto;">
-    <h2>Der Moment davor</h2>
-    <p>Hallo,</p>
-    <p>gestern hast du etwas bei dir klar gesehen:</p>
-    <p style="background:#f5f5f5; padding:12px; border-radius:8px;">
-      ${insight}
+  <div style="font-family: Arial, sans-serif; line-height:1.65; color:#171717; max-width:640px; margin:0 auto; padding:28px;">
+    <p style="font-size:12px; letter-spacing:0.22em; text-transform:uppercase; color:#08a99d; font-weight:700;">
+      ${label}
     </p>
-    <p>Genau dort beginnt Veränderung.</p>
-    <p>Heute geht es nicht darum, etwas zu ändern.</p>
-    <p>Nur darum, den Moment <strong>bevor</strong> du automatisch reagierst, zu bemerken.</p>
-    <p>Wenn dieser Moment heute kommt:<br/>halte für eine Sekunde inne.</p>
-    <p>Mehr ist nicht nötig.</p>
-    <p>— Klarflow</p>
+
+    <h1 style="font-size:30px; line-height:1.2; margin:12px 0 18px;">
+      ${title}
+    </h1>
+
+    ${body}
+
+    <p style="margin-top:34px;">— Klarflow</p>
   </div>
   `;
+}
+
+function insightBlock(insight: string) {
+  return `
+  <div style="background:#f2fbfa; border-radius:22px; padding:22px; margin:26px 0;">
+    <p style="font-size:13px; letter-spacing:0.16em; text-transform:uppercase; color:#08a99d; font-weight:700; margin-top:0;">
+      Dein Muster
+    </p>
+    <p style="margin-bottom:0;">
+      ${insight.replace(/\n/g, "<br />")}
+    </p>
+  </div>
+  `;
+}
+
+function darkBlock(title: string, text: string) {
+  return `
+  <div style="background:#171717; color:#ffffff; border-radius:22px; padding:22px; margin-top:30px;">
+    <p style="margin-top:0; font-weight:700;">${title}</p>
+    <p style="margin-bottom:0; color:#d4d4d4;">${text}</p>
+  </div>
+  `;
+}
+
+function buildEmailDay2(insight: string) {
+  return emailShell(
+    "Der Moment davor",
+    "Klarflow · Tag 2",
+    `
+    <p>Hallo,</p>
+
+    <p>
+      gestern hast du etwas bei dir klar gesehen.
+    </p>
+
+    ${insightBlock(insight)}
+
+    <p>
+      Heute geht es nicht darum, etwas zu ändern.
+    </p>
+
+    <p>
+      Nur darum, den Moment <strong>bevor</strong> du automatisch reagierst, etwas früher zu bemerken.
+    </p>
+
+    ${darkBlock(
+      "Für heute reicht eine Sekunde.",
+      "Wenn dieser Moment heute kommt, halte kurz inne. Mehr ist nicht nötig."
+    )}
+    `
+  );
 }
 
 function buildEmailDay3(insight: string) {
-  return `
-  <div style="font-family: Arial; line-height:1.6; max-width:600px; margin:auto;">
-    <h2>Du musst das nicht perfekt machen</h2>
+  return emailShell(
+    "Du musst das nicht perfekt machen",
+    "Klarflow · Tag 3",
+    `
     <p>Hallo,</p>
-    <p>du hast bereits erkannt, dass dein Verhalten nicht zufällig ist:</p>
-    <p style="background:#f5f5f5; padding:12px; border-radius:8px;">
-      ${insight}
+
+    <p>
+      du hast bereits erkannt, dass dein Verhalten nicht zufällig ist.
     </p>
-    <p>Das ist mehr, als die meisten jemals sehen.</p>
-    <p>Veränderung beginnt nicht mit Perfektion.</p>
-    <p>Sondern mit einem einzigen bewussten Moment.</p>
-    <p>Wenn du heute wieder zurückfällst:<br/>→ das ist kein Fehler<br/>→ das ist Teil des Weges</p>
-    <p>Komm einfach wieder zurück.</p>
-    <p>— Klarflow</p>
-  </div>
-  `;
+
+    ${insightBlock(insight)}
+
+    <p>
+      Veränderung beginnt nicht mit Perfektion.
+    </p>
+
+    <p>
+      Sie beginnt mit einem einzigen bewussten Moment.
+    </p>
+
+    ${darkBlock(
+      "Wenn du zurückfällst, ist das kein Scheitern.",
+      "Es ist Teil des Weges. Komm einfach wieder zurück — ruhig, ohne Druck."
+    )}
+    `
+  );
 }
 
 function buildEmailDay7(insight: string) {
-  return `
-  <div style="font-family: Arial; line-height:1.6; max-width:600px; margin:auto;">
-    <h2>Was sich verändert, wenn du hinschaust</h2>
-
+  return emailShell(
+    "Was sich verändert, wenn du hinschaust",
+    "Klarflow · Tag 7",
+    `
     <p>Hallo,</p>
 
     <p>
       vor einigen Tagen hast du dir einen Moment genommen, um ehrlich auf dein Muster zu schauen.
     </p>
 
-    <p style="background:#f5f5f5; padding:12px; border-radius:8px;">
-      ${insight}
-    </p>
+    ${insightBlock(insight)}
 
     <p>
-      Vielleicht hat sich seitdem schon etwas gezeigt.
-      Vielleicht auch noch nicht.
+      Vielleicht hat sich seitdem schon etwas gezeigt. Vielleicht auch noch nicht.
     </p>
 
     <p>
@@ -71,33 +128,24 @@ function buildEmailDay7(insight: string) {
     </p>
 
     <p>
-      Veränderung beginnt oft nicht sichtbar.
-      Sie beginnt in dem Moment, in dem du etwas nicht mehr völlig automatisch tust.
+      Veränderung beginnt oft nicht sichtbar. Sie beginnt in dem Moment,
+      in dem du etwas nicht mehr völlig automatisch tust.
     </p>
 
-    <p>
-      Für heute reicht eine Frage:
-    </p>
-
-    <p style="font-weight:bold;">
-      Was ist der eine Moment, in dem ich heute kurz wach bleiben kann?
-    </p>
-
-    <p>
-      Nicht perfekt. Nicht streng. Nur bewusst.
-    </p>
-
-    <p>— Klarflow</p>
-  </div>
-  `;
+    ${darkBlock(
+      "Eine Frage für heute:",
+      "Was ist der eine Moment, in dem ich heute kurz wach bleiben kann?"
+    )}
+    `
+  );
 }
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
 
-if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-  return new Response("Unauthorized", { status: 401 });
-}
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response("Unauthorized", { status: 401 });
+  }
 
   const now = new Date();
 
@@ -120,7 +168,7 @@ if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       const result2 = await resend.emails.send({
         from: "Klarflow <hello@klarflow.de>",
         to: lead.email,
-        subject: "Der Moment, in dem du normalerweise reagierst",
+        subject: "Der Moment davor",
         html: buildEmailDay2(lead.insight || ""),
       });
 
@@ -136,7 +184,7 @@ if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       const result3 = await resend.emails.send({
         from: "Klarflow <hello@klarflow.de>",
         to: lead.email,
-        subject: "Du brauchst keinen perfekten Plan",
+        subject: "Du musst das nicht perfekt machen",
         html: buildEmailDay3(lead.insight || ""),
       });
 

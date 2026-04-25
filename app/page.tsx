@@ -2,41 +2,55 @@
 
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import { AnimatePresence, motion } from "framer-motion";
 
 function generateInsight(answers: string[]) {
   let trigger = "";
   let feeling = "";
   let control = "";
 
-  if (answers.includes("Stress oder Überforderung")) {
-    trigger = "Stress";
-  } else if (answers.includes("Langeweile")) {
-    trigger = "Langeweile";
-  } else if (answers.includes("Einsamkeit")) {
-    trigger = "Einsamkeit";
-  } else {
-    trigger = "Gewohnheit";
-  }
+  if (answers.includes("Stress oder Überforderung")) trigger = "Stress";
+  else if (answers.includes("Langeweile")) trigger = "Langeweile";
+  else if (answers.includes("Einsamkeit")) trigger = "Einsamkeit";
+  else trigger = "Gewohnheit";
 
-  if (answers.includes("Leer oder erschöpft")) {
-    feeling = "erschöpft und leer";
-  } else if (answers.includes("Schuldig oder frustriert")) {
+  if (answers.includes("Leer oder erschöpft")) feeling = "erschöpft und leer";
+  else if (answers.includes("Schuldig oder frustriert"))
     feeling = "frustriert oder schuldig";
-  } else {
-    feeling = "unzufrieden";
-  }
+  else feeling = "unzufrieden";
 
-  if (answers.includes("Ich verliere komplett das Zeitgefühl")) {
+  if (answers.includes("Ich verliere komplett das Zeitgefühl"))
     control = "starken Kontrollverlust";
-  } else if (answers.includes("Oft länger als geplant")) {
+  else if (answers.includes("Oft länger als geplant"))
     control = "teilweisen Kontrollverlust";
-  } else {
-    control = "ein erstes Muster";
-  }
+  else control = "ein erstes Muster";
 
   return `Du hast beschrieben, dass ${trigger} ein häufiger Auslöser für dich ist und du dich danach oft ${feeling} fühlst. Gleichzeitig zeigt sich ${control}, was darauf hinweist, dass dieses Muster bereits tiefer verankert ist.
 
 Die gute Nachricht: Genau diese Klarheit ist der erste Schritt, um bewusst etwas zu verändern.`;
+}
+
+function generateCheckpointFeedback(recentAnswers: string[]) {
+  if (recentAnswers.includes("Stress oder Überforderung")) {
+    return "Du erkennst bereits sehr klar, dass Stress eine wichtige Rolle spielt. Das ist kein kleiner Punkt — genau diese Klarheit kann der Anfang von echter Veränderung sein.";
+  }
+
+  if (recentAnswers.includes("Einsamkeit")) {
+    return "Du hast ehrlich benannt, dass Alleinsein oder innere Leere eine Rolle spielen kann. Das braucht Mut — und genau dadurch wird Veränderung greifbarer.";
+  }
+
+  if (recentAnswers.includes("Ich verliere komplett das Zeitgefühl")) {
+    return "Du hast ein starkes Muster erkannt: Es geht nicht nur um eine einzelne Handlung, sondern um Momente, in denen du dich selbst verlierst. Das zu sehen ist ein wichtiger Schritt.";
+  }
+
+  if (
+    recentAnswers.includes("Ich bin mir bewusst, aber fühle mich machtlos") ||
+    recentAnswers.includes("Ich will stoppen, schaffe es aber nicht")
+  ) {
+    return "Du hast sehr ehrlich beschrieben, dass ein Teil von dir es bemerkt — und trotzdem nicht leicht herauskommt. Genau diese Ehrlichkeit ist wichtig, weil Veränderung nicht mit Druck beginnt, sondern mit Bewusstheit.";
+  }
+
+  return "Du hast bereits mehrere wichtige Hinweise über dich gesammelt. Aus einzelnen Antworten entsteht langsam ein klares Bild — und genau das macht Veränderung möglich.";
 }
 
 function generateEmailPreview(answers: string[]) {
@@ -77,7 +91,7 @@ const visuals = [
 
 const steps = [
   {
-    question: "Wann merkst du am häufigsten, dass du dich verlierst?",
+    question: "In welchen Momenten merkst du, dass du dich ein wenig verlierst?",
     options: [
       "Abends im Bett",
       "Wenn ich alleine bin",
@@ -123,12 +137,7 @@ const steps = [
   },
   {
     question: "Wie sehr beeinflusst das deinen Alltag?",
-    options: [
-      "Kaum",
-      "Ein bisschen",
-      "Spürbar",
-      "Es belastet mich deutlich",
-    ],
+    options: ["Kaum", "Ein bisschen", "Spürbar", "Es belastet mich deutlich"],
   },
   {
     question: "Hast du schon versucht, etwas daran zu ändern?",
@@ -150,12 +159,7 @@ const steps = [
   },
   {
     question: "Was würdest du dir stattdessen wünschen?",
-    options: [
-      "Mehr Kontrolle",
-      "Mehr Fokus",
-      "Mehr Energie",
-      "Innere Ruhe",
-    ],
+    options: ["Mehr Kontrolle", "Mehr Fokus", "Mehr Energie", "Innere Ruhe"],
   },
   {
     question: "Wie bereit bist du, wirklich etwas zu verändern?",
@@ -168,84 +172,13 @@ const steps = [
   },
 ];
 
-const feedbackMap: Record<string, string> = {
-  "Abends im Bett": "Viele erleben genau dann die größte Unruhe.",
-  "Wenn ich alleine bin": "Alleinsein kann ein starker Auslöser sein.",
-  "Bei Stress oder Druck": "Stress ist einer der häufigsten Auslöser.",
-  "Eigentlich über den ganzen Tag verteilt":
-    "Das zeigt, wie automatisiert es geworden ist.",
-
-  "Ich merke es kaum": "Auch das ist wichtig zu bemerken.",
-  "Ich merke es, aber mache weiter":
-    "Dieses Muster kennen viele sehr gut.",
-  "Ich bin mir bewusst, aber fühle mich machtlos":
-    "Allein das so klar zu erkennen, ist ein wichtiger Schritt.",
-  "Ich will stoppen, schaffe es aber nicht":
-    "Das ist ein sehr ehrlicher und wichtiger Punkt.",
-
-  Langeweile: "Langeweile kann stärker sein, als man denkt.",
-  "Stress oder Überforderung": "Stress ist einer der häufigsten Auslöser.",
-  Einsamkeit: "Einsamkeit kann Verhalten stark beeinflussen.",
-  "Gewohnheit / Automatismus":
-    "Gewohnheiten wirken oft tiefer, als man zuerst denkt.",
-
-  "Nur ein paar Minuten": "Auch kurze Momente können Teil eines Musters sein.",
-  "Oft länger als geplant":
-    "Das deutet auf einen ersten Kontrollverlust hin.",
-  "Manchmal mehrere Stunden":
-    "Dann lohnt es sich, genauer hinzusehen.",
-  "Ich verliere komplett das Zeitgefühl":
-    "Dann ist es gut, dass du hier bist.",
-
-  Neutral: "Auch Neutralität kann Teil eines Musters sein.",
-  "Leicht unzufrieden":
-    "Dieses Gefühl ist oft der erste wichtige Hinweis.",
-  "Schuldig oder frustriert":
-    "Das ist ein ehrlicher Punkt. Viele fühlen das ähnlich.",
-  "Leer oder erschöpft":
-    "Das zeigt, dass dich das innerlich bereits Kraft kostet.",
-
-  Kaum: "Gut, dass du trotzdem bewusst hinschaust.",
-  "Ein bisschen": "Solche Muster beginnen oft schleichend.",
-  Spürbar: "Dann lohnt es sich, genauer hinzusehen.",
-  "Es belastet mich deutlich": "Dann ist es gut, dass du hier bist.",
-
-  "Noch nicht": "Bewusst hinzusehen ist ein guter Anfang.",
-  "Ein paar Mal": "Das zeigt, dass du Veränderung bereits willst.",
-  "Mehrfach, aber ohne Erfolg":
-    "Viele scheitern nicht am Willen, sondern am fehlenden System.",
-  "Ich versuche es ständig":
-    "Das zeigt, wie wichtig dir Veränderung wirklich ist.",
-
-  "Ich weiß nicht wie":
-    "Klarheit über den Weg ist oft der erste Durchbruch.",
-  "Mir fehlt die Disziplin":
-    "Es geht oft weniger um Disziplin als um Muster.",
-  "Es ist zu tief Gewohnheit":
-    "Tiefe Gewohnheiten brauchen sanfte, klare Unterbrechungen.",
-  "Ich fühle mich allein damit":
-    "Sich damit allein zu fühlen, ist belastend – und sehr menschlich.",
-
-  "Mehr Kontrolle": "Das ist ein starkes und gesundes Ziel.",
-  "Mehr Fokus": "Ein klarer Kopf verändert oft sehr viel.",
-  "Mehr Energie": "Energie kehrt oft mit kleinen Veränderungen zurück.",
-  "Innere Ruhe": "Innere Ruhe ist ein wertvoller Ausgangspunkt.",
-
-  "Ich denke darüber nach":
-    "Schon das ist ein wichtiger erster innerer Schritt.",
-  "Ich will kleine Schritte gehen":
-    "Kleine Schritte sind oft die nachhaltigsten.",
-  "Ich bin bereit, ernsthaft anzusetzen":
-    "Diese Klarheit kann sehr viel verändern.",
-  "Ich will jetzt einen echten Wandel":
-    "Das ist ein kraftvoller Moment der Entscheidung.",
-};
-
 export default function Home() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [done, setDone] = useState(false);
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [checkpointFeedback, setCheckpointFeedback] = useState<string | null>(
+    null
+  );
   const [email, setEmail] = useState("");
   const [emailSaved, setEmailSaved] = useState(false);
   const [emailError, setEmailError] = useState("");
@@ -253,280 +186,287 @@ export default function Home() {
   const handleAnswer = (answer: string) => {
     const updated = [...answers, answer];
     setAnswers(updated);
-    setFeedback(feedbackMap[answer] || "Danke für deine Ehrlichkeit.");
 
-    setTimeout(() => {
-      setFeedback(null);
+    const answeredCount = updated.length;
 
-      if (step + 1 < steps.length) {
-        setStep(step + 1);
-      } else {
-        setDone(true);
-      }
-    }, 1200);
+    if (answeredCount === 5) {
+      const recentAnswers = updated.slice(-5);
+      setCheckpointFeedback(generateCheckpointFeedback(recentAnswers));
+      return;
+    }
+
+    if (step + 1 < steps.length) {
+      setStep(step + 1);
+    } else {
+      setDone(true);
+    }
   };
 
-const handleEmailSave = async () => {
-  const trimmed = email.trim();
-  const insight = generateInsight(answers);
+  const handleCheckpointContinue = () => {
+    setCheckpointFeedback(null);
 
-  if (!trimmed) {
-    setEmailError("Bitte gib deine E-Mail-Adresse ein.");
-    setEmailSaved(false);
-    return;
-  }
+    if (step + 1 < steps.length) {
+      setStep(step + 1);
+    } else {
+      setDone(true);
+    }
+  };
 
-  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+  const handleEmailSave = async () => {
+    const trimmed = email.trim();
+    const insight = generateInsight(answers);
 
-  if (!isValidEmail) {
-    setEmailError("Bitte gib eine gültige E-Mail-Adresse ein.");
-    setEmailSaved(false);
-    return;
-  }
+    if (!trimmed) {
+      setEmailError("Bitte gib deine E-Mail-Adresse ein.");
+      setEmailSaved(false);
+      return;
+    }
 
-  const { error: dbError } = await supabase.from("leads").insert([
-    {
-      email: trimmed,
-      answers: JSON.stringify(answers),
-      insight,
-    },
-  ]);
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
 
-  if (dbError) {
-    console.error("Supabase insert error:", dbError);
-    setEmailError(`Fehler beim Speichern: ${dbError.message}`);
-    setEmailSaved(false);
-    return;
-  }
+    if (!isValidEmail) {
+      setEmailError("Bitte gib eine gültige E-Mail-Adresse ein.");
+      setEmailSaved(false);
+      return;
+    }
 
-  const emailResponse = await fetch("/api/send-plan-email", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email: trimmed,
-      insight,
-    }),
-  });
+    const { error: dbError } = await supabase.from("leads").insert([
+      {
+        email: trimmed,
+        answers: JSON.stringify(answers),
+        insight,
+      },
+    ]);
 
-  if (!emailResponse.ok) {
-    const emailData = await emailResponse.json().catch(() => null);
-    setEmailError(
-      emailData?.error ||
-        "Der Plan wurde gespeichert, aber die E-Mail konnte nicht gesendet werden."
-    );
-    setEmailSaved(false);
-    return;
-  }
+    if (dbError) {
+      setEmailError(`Fehler beim Speichern: ${dbError.message}`);
+      setEmailSaved(false);
+      return;
+    }
 
-  setEmailError("");
-  setEmailSaved(true);
-  setEmail("");
-};
+    const emailResponse = await fetch("/api/send-plan-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: trimmed, insight }),
+    });
+
+    if (!emailResponse.ok) {
+      const emailData = await emailResponse.json().catch(() => null);
+      setEmailError(
+        emailData?.error ||
+          "Der Plan wurde gespeichert, aber die E-Mail konnte nicht gesendet werden."
+      );
+      setEmailSaved(false);
+      return;
+    }
+
+    setEmailError("");
+    setEmailSaved(true);
+    setEmail("");
+  };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-200 flex items-center justify-center p-6">
-      <div className="w-full max-w-lg">
-        <div className="bg-white rounded-3xl p-10 shadow-xl border border-neutral-200">
-          {!done ? (
-            <>
-              <div className="mb-6">
-                <img
-                  src={visuals[step]}
-                  className="w-full h-40 object-cover rounded-2xl mb-6"
-                  alt="Illustration zur aktuellen Frage"
+    <main className="min-h-screen bg-white px-5 text-neutral-950">
+      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col">
+        <header className="flex h-20 items-center justify-center border-b border-neutral-100">
+          <div className="text-center">
+            <p className="text-2xl font-bold tracking-tight">klarflow</p>
+            <p className="mt-1 text-xs text-neutral-400">
+              Ein ruhiger Moment, um dich selbst besser zu verstehen.
+            </p>
+          </div>
+        </header>
+
+        {!done ? (
+          <section className="flex flex-1 flex-col pt-8 md:pt-12">
+            <div className="mb-12">
+              <div className="h-1 w-full rounded-full bg-neutral-100">
+                <div
+                  className="h-1 rounded-full bg-[#08a99d] transition-all duration-500"
+                  style={{ width: `${((step + 1) / steps.length) * 100}%` }}
                 />
-
-                <h1 className="text-2xl font-semibold text-neutral-800 leading-snug text-center">
-                  {steps[step].question}
-                </h1>
               </div>
 
-              <div className="space-y-4">
-                {steps[step].options.map((opt, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleAnswer(opt)}
-                    className="w-full py-4 rounded-2xl bg-neutral-100 hover:bg-neutral-200 transition text-neutral-700 text-sm"
-                  >
-                    {opt}
-                  </button>
-                ))}
+              <div className="mt-3 flex justify-end text-sm font-medium text-neutral-400">
+                {Math.min(step + 1, steps.length)} / {steps.length}
               </div>
+            </div>
 
-              {feedback && (
-                <p className="text-sm text-neutral-500 text-center mt-4">
-                  {feedback}
-                </p>
+            <AnimatePresence mode="wait">
+              {checkpointFeedback ? (
+                <motion.div
+                  key="checkpoint"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="mx-auto flex w-full max-w-3xl flex-1 items-center justify-center text-center"
+                >
+                  <div className="rounded-[2rem] bg-[#f2fbfa] px-8 py-10 shadow-sm">
+                    <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#08a99d]">
+                      Kurzer Zwischenstand
+                    </p>
+
+                    <p className="text-xl font-semibold leading-relaxed text-neutral-900 md:text-2xl">
+                      {checkpointFeedback}
+                    </p>
+
+                    <button
+                      onClick={handleCheckpointContinue}
+                      className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.98]"
+                    >
+                      Weiter
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key={step}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.22, ease: "easeOut" }}
+                  className="mx-auto w-full max-w-3xl text-center"
+                >
+                  <img
+                    src={visuals[step]}
+                    className="mx-auto mb-8 h-36 w-36 rounded-3xl object-cover md:h-44 md:w-44"
+                    alt="Illustration zur aktuellen Frage"
+                  />
+
+                  <h1 className="mx-auto max-w-2xl text-[28px] font-bold leading-tight tracking-tight md:text-4xl">
+                    {steps[step].question}
+                  </h1>
+
+                  <p className="mt-3 text-sm text-neutral-400">
+                    Wähle die Antwort, die sich für dich am ehrlichsten anfühlt.
+                  </p>
+
+                  <div className="mx-auto mt-10 grid w-full max-w-2xl gap-4">
+                    {steps[step].options.map((opt, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleAnswer(opt)}
+                        className="w-full rounded-2xl bg-neutral-100 px-7 py-5 text-left text-lg font-semibold text-neutral-900 transition-all duration-200 hover:scale-[1.01] hover:bg-neutral-200 active:scale-[0.98]"
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
               )}
-
-              <p className="text-xs text-neutral-400 mt-8 text-center">
-                Schritt {step + 1} von {steps.length}
+            </AnimatePresence>
+          </section>
+        ) : (
+          <section className="mx-auto w-full max-w-3xl flex-1 py-12">
+            <div className="text-center">
+              <h2 className="text-4xl font-extrabold tracking-tight">
+                Dein persönlicher Überblick
+              </h2>
+              <p className="mx-auto mt-5 max-w-2xl whitespace-pre-line text-lg leading-relaxed text-neutral-600">
+                {generateInsight(answers)}
               </p>
-            </>
-          ) : (
-            <div className="space-y-6">
-              <div className="text-center">
-                <h2 className="text-2xl font-semibold text-neutral-800 mb-3">
-                  Dein persönlicher Überblick
-                </h2>
-                <p className="text-neutral-600 text-sm leading-relaxed whitespace-pre-line">
-                  {generateInsight(answers)}
-                </p>
-              </div>
+            </div>
 
-              <div className="bg-neutral-50 rounded-2xl p-5 border border-neutral-200">
-                <h3 className="text-neutral-800 font-medium mb-2">
-                  Was wir erkennen
-                </h3>
-                <p className="text-neutral-600 text-sm leading-relaxed">
+            <div className="mt-10 grid gap-4">
+              <div className="rounded-3xl bg-neutral-100 p-6">
+                <h3 className="text-lg font-bold">Was wir erkennen</h3>
+                <p className="mt-2 leading-relaxed text-neutral-600">
                   Dein Verhalten scheint nicht zufällig zu sein, sondern mit
                   klaren Auslösern und wiederkehrenden Mustern verbunden.
                 </p>
               </div>
 
-              <div className="bg-neutral-50 rounded-2xl p-5 border border-neutral-200">
-                <h3 className="text-neutral-800 font-medium mb-2">
-                  Was dir jetzt helfen kann
-                </h3>
-                <p className="text-neutral-600 text-sm leading-relaxed">
+              <div className="rounded-3xl bg-neutral-100 p-6">
+                <h3 className="text-lg font-bold">Was dir jetzt helfen kann</h3>
+                <p className="mt-2 leading-relaxed text-neutral-600">
                   Der wichtigste nächste Schritt ist nicht Härte gegen dich
                   selbst, sondern mehr Bewusstheit im richtigen Moment.
                 </p>
               </div>
 
-              <div className="bg-neutral-50 rounded-2xl p-5 border border-neutral-200">
-                <h3 className="text-neutral-800 font-medium mb-2">
+              <div className="rounded-3xl bg-neutral-100 p-6">
+                <h3 className="text-lg font-bold">
                   Dein nächster kleiner Schritt
                 </h3>
-                <p className="text-neutral-600 text-sm leading-relaxed">
+                <p className="mt-2 leading-relaxed text-neutral-600">
                   Beobachte heute nur einen einzigen Moment ganz bewusst, bevor
                   du automatisch zum Handy greifst. Noch nichts ändern. Nur
                   erkennen.
                 </p>
               </div>
+            </div>
 
-              <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-sm">
-                <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-sm">
-  <h3 className="text-neutral-800 font-medium mb-2 text-center">
-    Möchtest du diesen Moment nicht verlieren?
-  </h3>
+            <div className="mt-8 rounded-3xl bg-neutral-950 p-7 text-white">
+              <h3 className="text-center text-2xl font-extrabold">
+                Möchtest du diesen Moment nicht verlieren?
+              </h3>
 
-  <p className="text-neutral-600 text-sm leading-relaxed text-center mb-4">
-    Du hast gerade etwas bei dir erkannt, das im Alltag oft untergeht.
-    <br />
-    <br />
-    Wenn du möchtest, senden wir dir deinen persönlichen Überblick
-    und die nächsten Schritte per E-Mail.
-  </p>
+              <p className="mx-auto mt-4 max-w-xl text-center leading-relaxed text-neutral-300">
+                Du hast gerade etwas bei dir erkannt, das im Alltag oft
+                untergeht. Wenn du möchtest, senden wir dir deinen persönlichen
+                Überblick und die nächsten Schritte per E-Mail.
+              </p>
 
-  <input
-    type="email"
-    placeholder="Deine E-Mail-Adresse"
-    value={email}
-    onChange={(e) => {
-      setEmail(e.target.value);
-      if (emailError) setEmailError("");
-      if (emailSaved) setEmailSaved(false);
-    }}
-    className="w-full rounded-xl border border-neutral-300 px-4 py-3 text-neutral-800 outline-none focus:border-neutral-500"
-  />
+              <input
+                type="email"
+                placeholder="Deine E-Mail-Adresse"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (emailError) setEmailError("");
+                  if (emailSaved) setEmailSaved(false);
+                }}
+                className="mt-6 w-full rounded-2xl border border-white/20 bg-white px-5 py-4 text-neutral-900 outline-none"
+              />
 
-  <button
-    onClick={handleEmailSave}
-    className="w-full mt-3 py-3 bg-neutral-900 text-white rounded-xl"
-  >
-    Moment speichern
-  </button>
+              <button
+                onClick={handleEmailSave}
+                className="mt-4 w-full rounded-2xl bg-[#4b28e8] py-4 font-bold text-white transition hover:bg-[#3d20c7]"
+              >
+                Moment speichern
+              </button>
 
-  <button className="w-full mt-3 py-3 bg-transparent text-neutral-500 rounded-xl border border-transparent hover:text-neutral-700">
-    Erst einmal ohne weiter
-  </button>
+              <button className="mt-3 w-full rounded-2xl py-3 text-sm text-neutral-400 hover:text-white">
+                Erst einmal ohne weiter
+              </button>
 
-  {emailError && (
-    <p className="text-sm text-red-600 text-center mt-3">
-      {emailError}
-    </p>
-  )}
-
-  {emailSaved && (
-    <p className="text-sm text-green-700 text-center mt-3">
-      Dein Moment wurde gespeichert.
-    </p>
-  )}
-
-  <p className="text-xs text-neutral-400 text-center mt-4">
-    Wir behandeln deine Angaben vertraulich.
-  </p>
-</div>
-
-                <p className="text-neutral-600 text-sm leading-relaxed text-center mb-4">
-                  Wenn du möchtest, senden wir dir deinen Überblick und die
-                  nächsten Schritte per E-Mail. Ohne Druck. Du kannst dich
-                  jederzeit wieder abmelden.
+              {emailError && (
+                <p className="mt-3 text-center text-sm text-red-300">
+                  {emailError}
                 </p>
-
-                <input
-                  type="email"
-                  placeholder="Deine E-Mail-Adresse"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (emailError) setEmailError("");
-                    if (emailSaved) setEmailSaved(false);
-                  }}
-                  className="w-full rounded-xl border border-neutral-300 px-4 py-3 text-neutral-800 outline-none focus:border-neutral-500"
-                />
-
-                <button
-                  onClick={handleEmailSave}
-                  className="w-full mt-3 py-3 bg-neutral-900 text-white rounded-xl"
-                >
-                  Plan per E-Mail speichern
-                </button>
-
-                <button className="w-full mt-3 py-3 bg-transparent text-neutral-500 rounded-xl border border-transparent hover:text-neutral-700">
-                  Erst einmal ohne weiter
-                </button>
-
-                {emailError && (
-                  <p className="text-sm text-red-600 text-center mt-3">
-                    {emailError}
-                  </p>
-                )}
-
-                {emailSaved && (
-                  <p className="text-sm text-green-700 text-center mt-3">
-                    Danke. Dein Plan wurde gespeichert.
-                  </p>
-                )}
-
-                <p className="text-xs text-neutral-400 text-center mt-4">
-                  Wir behandeln deine Angaben vertraulich.
-                </p>
-              </div>
+              )}
 
               {emailSaved && (
-                <div className="bg-neutral-50 rounded-2xl p-5 border border-neutral-200">
-                  <h3 className="text-neutral-800 font-medium mb-3">
-                    Vorschau deiner E-Mail
-                  </h3>
+                <p className="mt-3 text-center text-sm text-emerald-300">
+                  Dein Moment wurde gespeichert.
+                </p>
+              )}
 
-                  <div className="bg-white rounded-xl border border-neutral-200 p-4">
-                    <p className="text-sm text-neutral-500 mb-2">
-                      Betreff: Dein persönlicher erster Schritt
-                    </p>
+              <p className="mt-5 text-center text-xs text-neutral-500">
+                Wir behandeln deine Angaben vertraulich.
+              </p>
+            </div>
 
-                    <div className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line">
-                      {generateEmailPreview(answers)}
-                    </div>
+            {emailSaved && (
+              <div className="mt-6 rounded-3xl bg-neutral-100 p-6">
+                <h3 className="mb-3 text-lg font-bold">
+                  Vorschau deiner E-Mail
+                </h3>
+
+                <div className="rounded-2xl bg-white p-5">
+                  <p className="mb-3 text-sm text-neutral-500">
+                    Betreff: Dein persönlicher erster Schritt
+                  </p>
+
+                  <div className="whitespace-pre-line leading-relaxed text-neutral-700">
+                    {generateEmailPreview(answers)}
                   </div>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </main>
   );

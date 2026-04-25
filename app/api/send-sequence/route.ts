@@ -17,15 +17,19 @@ function buildEmailDay2(insight: string) {
     <p>Hallo,</p>
 
     <p>
-    gestern hast du etwas Wichtiges erkannt.
+    gestern hast du etwas bei dir klar gesehen:
+    </p>
+
+    <p style="background:#f5f5f5; padding:12px; border-radius:8px;">
+    ${insight}
     </p>
 
     <p>
-    Nicht viele bleiben an diesem Punkt stehen.
+    Genau dort beginnt Veränderung.
     </p>
 
     <p>
-    Heute geht es nicht darum, etwas zu verändern.
+    Heute geht es nicht darum, etwas zu ändern.
     </p>
 
     <p>
@@ -35,13 +39,7 @@ function buildEmailDay2(insight: string) {
     </p>
 
     <p>
-    Er ist oft sehr kurz.
-    <br/>
-    Fast unsichtbar.
-    </p>
-
-    <p>
-    Wenn du ihn heute siehst,
+    Wenn dieser Moment heute kommt:
     <br/>
     halte für eine Sekunde inne.
     </p>
@@ -58,7 +56,7 @@ function buildEmailDay2(insight: string) {
   `;
 }
 
-function buildEmailDay3() {
+function buildEmailDay3(insight: string) {
   return `
   <div style="font-family: Arial; line-height:1.6; max-width:600px; margin:auto;">
     
@@ -67,26 +65,27 @@ function buildEmailDay3() {
     <p>Hallo,</p>
 
     <p>
-    viele denken, Veränderung bedeutet,
-    alles sofort richtig zu machen.
+    du hast bereits erkannt, dass dein Verhalten nicht zufällig ist:
+    </p>
+
+    <p style="background:#f5f5f5; padding:12px; border-radius:8px;">
+    ${insight}
     </p>
 
     <p>
-    Das stimmt nicht.
+    Das ist mehr, als die meisten jemals sehen.
     </p>
 
     <p>
-    Veränderung beginnt viel früher:
-    <br/>
-    in einem einzigen bewussten Moment.
+    Veränderung beginnt nicht mit Perfektion.
     </p>
 
     <p>
-    Und genau dort hast du bereits angesetzt.
+    Sondern mit einem einzigen bewussten Moment.
     </p>
 
     <p>
-    Wenn du heute wieder in ein altes Muster fällst:
+    Wenn du heute wieder zurückfällst:
     </p>
 
     <p>
@@ -96,10 +95,6 @@ function buildEmailDay3() {
 
     <p>
     Komm einfach wieder zurück.
-    </p>
-
-    <p>
-    Ruhig. Ohne Druck.
     </p>
 
     <p>
@@ -155,7 +150,7 @@ export async function GET(request: Request) {
         from: "Klarflow <hello@klarflow.de>",
         to: lead.email,
         subject: "Du brauchst keinen perfekten Plan",
-        html: buildEmailDay3(),
+        html: buildEmailDay3(lead.insight || ""),
       });
 
       console.log("Day 3 Resend result:", result3);

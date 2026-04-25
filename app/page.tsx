@@ -408,9 +408,58 @@ const handleEmailSave = async () => {
               </div>
 
               <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-sm">
-                <h3 className="text-neutral-800 font-medium mb-2 text-center">
-                  Möchtest du deinen persönlichen Plan speichern?
-                </h3>
+                <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-sm">
+  <h3 className="text-neutral-800 font-medium mb-2 text-center">
+    Möchtest du diesen Moment nicht verlieren?
+  </h3>
+
+  <p className="text-neutral-600 text-sm leading-relaxed text-center mb-4">
+    Du hast gerade etwas bei dir erkannt, das im Alltag oft untergeht.
+    <br />
+    <br />
+    Wenn du möchtest, senden wir dir deinen persönlichen Überblick
+    und die nächsten Schritte per E-Mail.
+  </p>
+
+  <input
+    type="email"
+    placeholder="Deine E-Mail-Adresse"
+    value={email}
+    onChange={(e) => {
+      setEmail(e.target.value);
+      if (emailError) setEmailError("");
+      if (emailSaved) setEmailSaved(false);
+    }}
+    className="w-full rounded-xl border border-neutral-300 px-4 py-3 text-neutral-800 outline-none focus:border-neutral-500"
+  />
+
+  <button
+    onClick={handleEmailSave}
+    className="w-full mt-3 py-3 bg-neutral-900 text-white rounded-xl"
+  >
+    Moment speichern
+  </button>
+
+  <button className="w-full mt-3 py-3 bg-transparent text-neutral-500 rounded-xl border border-transparent hover:text-neutral-700">
+    Erst einmal ohne weiter
+  </button>
+
+  {emailError && (
+    <p className="text-sm text-red-600 text-center mt-3">
+      {emailError}
+    </p>
+  )}
+
+  {emailSaved && (
+    <p className="text-sm text-green-700 text-center mt-3">
+      Dein Moment wurde gespeichert.
+    </p>
+  )}
+
+  <p className="text-xs text-neutral-400 text-center mt-4">
+    Wir behandeln deine Angaben vertraulich.
+  </p>
+</div>
 
                 <p className="text-neutral-600 text-sm leading-relaxed text-center mb-4">
                   Wenn du möchtest, senden wir dir deinen Überblick und die

@@ -11,13 +11,49 @@ const supabase = createClient(
 function buildEmailDay2(insight: string) {
   return `
   <div style="font-family: Arial; line-height:1.6; max-width:600px; margin:auto;">
-    <h2>Der Moment, in dem du normalerweise automatisch reagierst</h2>
+    
+    <h2>Der Moment davor</h2>
+
     <p>Hallo,</p>
-    <p>gestern hast du begonnen, etwas bei dir klar zu sehen.</p>
-    <p>Heute geht es nur darum, einen Moment früher zu bemerken, was passiert.</p>
-    <p>Wenn der Moment heute kommt:<br/>→ halte für 1 Sekunde inne</p>
-    <p>Das reicht völlig.</p>
-    <p>— Klarflow</p>
+
+    <p>
+    gestern hast du etwas Wichtiges erkannt.
+    </p>
+
+    <p>
+    Nicht viele bleiben an diesem Punkt stehen.
+    </p>
+
+    <p>
+    Heute geht es nicht darum, etwas zu verändern.
+    </p>
+
+    <p>
+    Nur darum, einen Moment zu bemerken:
+    <br/>
+    den Moment <strong>bevor</strong> du automatisch reagierst.
+    </p>
+
+    <p>
+    Er ist oft sehr kurz.
+    <br/>
+    Fast unsichtbar.
+    </p>
+
+    <p>
+    Wenn du ihn heute siehst,
+    <br/>
+    halte für eine Sekunde inne.
+    </p>
+
+    <p>
+    Mehr ist nicht nötig.
+    </p>
+
+    <p>
+    — Klarflow
+    </p>
+
   </div>
   `;
 }
@@ -25,12 +61,51 @@ function buildEmailDay2(insight: string) {
 function buildEmailDay3() {
   return `
   <div style="font-family: Arial; line-height:1.6; max-width:600px; margin:auto;">
-    <h2>Du brauchst keinen perfekten Plan</h2>
+    
+    <h2>Du musst das nicht perfekt machen</h2>
+
     <p>Hallo,</p>
-    <p>Veränderung beginnt nicht mit Druck, sondern mit einem bewussten Moment.</p>
-    <p>Wenn du zurückfällst:<br/>→ das ist kein Scheitern<br/>→ das ist Teil des Prozesses</p>
-    <p>Komm einfach wieder zurück.</p>
-    <p>— Klarflow</p>
+
+    <p>
+    viele denken, Veränderung bedeutet,
+    alles sofort richtig zu machen.
+    </p>
+
+    <p>
+    Das stimmt nicht.
+    </p>
+
+    <p>
+    Veränderung beginnt viel früher:
+    <br/>
+    in einem einzigen bewussten Moment.
+    </p>
+
+    <p>
+    Und genau dort hast du bereits angesetzt.
+    </p>
+
+    <p>
+    Wenn du heute wieder in ein altes Muster fällst:
+    </p>
+
+    <p>
+    → das ist kein Fehler<br/>
+    → das ist Teil des Weges
+    </p>
+
+    <p>
+    Komm einfach wieder zurück.
+    </p>
+
+    <p>
+    Ruhig. Ohne Druck.
+    </p>
+
+    <p>
+    — Klarflow
+    </p>
+
   </div>
   `;
 }

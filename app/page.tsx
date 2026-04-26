@@ -389,7 +389,8 @@ export default function Home() {
               </p>
 
               <h1 className="text-4xl font-extrabold tracking-tight">
-                Schön, dass du wieder da bist.
+                Du warst schon einmal ehrlich mit dir.
+Lass uns genau dort weitermachen.
               </h1>
 
               <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">

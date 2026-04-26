@@ -110,7 +110,7 @@ function buildEmailDay3(insight: string, email: string) {
     </p>
 
     <p>
-      Sie beginnt mit einem einzigen bewussten Moment.
+      Heute geht es um einen einzigen bewussten Moment — den du aktiv erkennst.
     </p>
 
     ${darkBlock(

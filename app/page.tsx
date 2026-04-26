@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -74,6 +74,26 @@ Du musst das nicht perfekt machen.
 Ein erster bewusster Moment ist bereits ein Fortschritt.
 
 Alles Gute`;
+}
+
+function generateReturningReflection(answers: string[]) {
+  if (answers.includes("Ich war bewusster als sonst")) {
+    return "Das ist ein sehr wichtiger Fortschritt. Bewusstheit ist oft der erste echte Abstand zwischen dir und dem alten Muster.";
+  }
+
+  if (answers.includes("Ich bin wieder automatisch reingerutscht")) {
+    return "Das ist kein Rückschritt. Es zeigt nur, dass das Muster noch stark ist. Wichtig ist: Du bist zurückgekommen und schaust wieder hin.";
+  }
+
+  if (answers.includes("Stress")) {
+    return "Heute scheint Stress wieder eine Rolle zu spielen. Dein Ziel ist nicht, ihn wegzudrücken — sondern ihn etwas früher zu bemerken.";
+  }
+
+  if (answers.includes("Ruhe")) {
+    return "Du sehnst dich gerade nach mehr Ruhe. Für heute reicht ein kleiner Moment, in dem du nichts optimierst und nur kurz bei dir bleibst.";
+  }
+
+  return "Du hast heute wieder kurz innegehalten. Genau solche kleinen Check-ins machen Veränderung greifbarer.";
 }
 
 const visuals = [
@@ -172,6 +192,26 @@ const steps = [
   },
 ];
 
+const returningSteps = [
+  {
+    question: "Wie war dein letzter Tag mit deinem Muster?",
+    options: [
+      "Ich war bewusster als sonst",
+      "Ich bin wieder automatisch reingerutscht",
+      "Es war ungefähr wie immer",
+      "Ich habe kurz innegehalten",
+    ],
+  },
+  {
+    question: "Was war heute oder gestern der stärkste Auslöser?",
+    options: ["Stress", "Langeweile", "Alleinsein", "Gewohnheit"],
+  },
+  {
+    question: "Was brauchst du gerade am meisten?",
+    options: ["Ruhe", "Klarheit", "Energie", "Einen kleinen nächsten Schritt"],
+  },
+];
+
 export default function Home() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
@@ -179,9 +219,42 @@ export default function Home() {
   const [checkpointFeedback, setCheckpointFeedback] = useState<string | null>(
     null
   );
+
+  const [showReturnScreen, setShowReturnScreen] = useState(false);
+  const [returningMode, setReturningMode] = useState(false);
+  const [returningStep, setReturningStep] = useState(0);
+  const [returningAnswers, setReturningAnswers] = useState<string[]>([]);
+  const [returningDone, setReturningDone] = useState(false);
+
   const [email, setEmail] = useState("");
   const [emailSaved, setEmailSaved] = useState(false);
   const [emailError, setEmailError] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("returning") === "true") {
+      setShowReturnScreen(true);
+    }
+  }, []);
+
+  const startNewCheckIn = () => {
+    setShowReturnScreen(false);
+    setReturningMode(true);
+    setReturningStep(0);
+    setReturningAnswers([]);
+    setReturningDone(false);
+  };
+
+  const handleReturningAnswer = (answer: string) => {
+    const updated = [...returningAnswers, answer];
+    setReturningAnswers(updated);
+
+    if (returningStep + 1 < returningSteps.length) {
+      setReturningStep(returningStep + 1);
+    } else {
+      setReturningDone(true);
+    }
+  };
 
   const handleAnswer = (answer: string) => {
     const updated = [...answers, answer];
@@ -244,15 +317,15 @@ export default function Home() {
       return;
     }
 
-const emailResponse = await fetch("/api/send-plan-email", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    email: trimmed,
-    insight,
-    readiness: answers[answers.length - 1],
-  }),
-});
+    const emailResponse = await fetch("/api/send-plan-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: trimmed,
+        insight,
+        readiness: answers[answers.length - 1],
+      }),
+    });
 
     if (!emailResponse.ok) {
       const emailData = await emailResponse.json().catch(() => null);
@@ -281,7 +354,117 @@ const emailResponse = await fetch("/api/send-plan-email", {
           </div>
         </header>
 
-        {!done ? (
+        {showReturnScreen ? (
+          <section className="mx-auto flex w-full max-w-3xl flex-1 items-center justify-center py-12 text-center">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.35 }}
+              className="rounded-[2rem] bg-[#f2fbfa] px-8 py-12 shadow-sm"
+            >
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#08a99d]">
+                Willkommen zurück
+              </p>
+
+              <h1 className="text-4xl font-extrabold tracking-tight">
+                Schön, dass du wieder da bist.
+              </h1>
+
+              <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">
+                Lass uns kurz schauen, wie es dir heute geht. Nur drei Fragen —
+                ruhig, ehrlich, ohne Druck.
+              </p>
+
+              <button
+                onClick={startNewCheckIn}
+                className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.98]"
+              >
+                Kurzen Check-in starten
+              </button>
+            </motion.div>
+          </section>
+        ) : returningMode ? (
+          <section className="flex flex-1 flex-col pt-8 md:pt-12">
+            <div className="mb-12">
+              <div className="h-1 w-full rounded-full bg-neutral-100">
+                <div
+                  className="h-1 rounded-full bg-[#08a99d] transition-all duration-500"
+                  style={{
+                    width: `${
+                      ((returningStep + 1) / returningSteps.length) * 100
+                    }%`,
+                  }}
+                />
+              </div>
+
+              <div className="mt-3 flex justify-end text-sm font-medium text-neutral-400">
+                {Math.min(returningStep + 1, returningSteps.length)} /{" "}
+                {returningSteps.length}
+              </div>
+            </div>
+
+            {!returningDone ? (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={returningStep}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.22, ease: "easeOut" }}
+                  className="mx-auto w-full max-w-3xl text-center"
+                >
+                  <h1 className="mx-auto max-w-2xl text-[28px] font-bold leading-tight tracking-tight md:text-4xl">
+                    {returningSteps[returningStep].question}
+                  </h1>
+
+                  <p className="mt-3 text-sm text-neutral-400">
+                    Wähle, was heute am ehrlichsten passt.
+                  </p>
+
+                  <div className="mx-auto mt-10 grid w-full max-w-2xl gap-4">
+                    {returningSteps[returningStep].options.map((opt, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleReturningAnswer(opt)}
+                        className="w-full rounded-2xl bg-neutral-100 px-7 py-5 text-left text-lg font-semibold text-neutral-900 transition-all duration-200 hover:scale-[1.01] hover:bg-neutral-200 active:scale-[0.98]"
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            ) : (
+              <section className="mx-auto flex w-full max-w-3xl flex-1 items-center justify-center py-12 text-center">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.35 }}
+                  className="rounded-[2rem] bg-[#f2fbfa] px-8 py-12 shadow-sm"
+                >
+                  <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#08a99d]">
+                    Dein heutiger Check-in
+                  </p>
+
+                  <h1 className="text-4xl font-extrabold tracking-tight">
+                    Ein kleiner Moment zählt.
+                  </h1>
+
+                  <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">
+                    {generateReturningReflection(returningAnswers)}
+                  </p>
+
+                  <button
+                    onClick={() => setReturningMode(false)}
+                    className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.98]"
+                  >
+                    Zur Startseite
+                  </button>
+                </motion.div>
+              </section>
+            )}
+          </section>
+        ) : !done ? (
           <section className="flex flex-1 flex-col pt-8 md:pt-12">
             <div className="mb-12">
               <div className="h-1 w-full rounded-full bg-neutral-100">

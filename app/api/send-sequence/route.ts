@@ -43,7 +43,12 @@ function darkBlock(title: string, text: string) {
   return `
   <div style="background:#171717; color:#ffffff; border-radius:22px; padding:22px; margin-top:30px;">
     <p style="margin-top:0; font-weight:700;">${title}</p>
-    <p style="margin-bottom:0; color:#d4d4d4;">${text}</p>
+    <p style="margin-bottom:16px; color:#d4d4d4;">${text}</p>
+
+    <a href="https://klarflow.vercel.app?returning=true"
+       style="display:inline-block; padding:12px 20px; background:#ffffff; color:#171717; text-decoration:none; border-radius:12px; font-weight:600;">
+       Zurück zu Klarflow
+    </a>
   </div>
   `;
 }

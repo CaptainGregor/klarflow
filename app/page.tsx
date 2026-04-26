@@ -267,6 +267,7 @@ const returningSteps = [
 export default function Home() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [checkpointFeedback, setCheckpointFeedback] = useState<string | null>(
     null
@@ -354,11 +355,16 @@ const handleReturningAnswer = async (answer: string) => {
   }
 };
 
-  const handleAnswer = (answer: string) => {
+const handleAnswer = (answer: string) => {
+  setSelectedAnswer(answer);
+
+  setTimeout(() => {
     const updated = [...answers, answer];
     setAnswers(updated);
 
     const answeredCount = updated.length;
+
+    setSelectedAnswer(null);
 
     if (answeredCount === 5) {
       const recentAnswers = updated.slice(-5);
@@ -371,7 +377,8 @@ const handleReturningAnswer = async (answer: string) => {
     } else {
       setDone(true);
     }
-  };
+  }, 220);
+};
 
   const handleCheckpointContinue = () => {
     setCheckpointFeedback(null);
@@ -542,20 +549,24 @@ const handleReturningAnswer = async (answer: string) => {
       </p>
 
       <h1 className="text-4xl font-extrabold tracking-tight">
-        Du warst schon einmal ehrlich mit dir.
+        Du hast etwas bei dir erkannt.
         <br />
-        Lass uns genau dort weitermachen.
+        Lass uns genau dort wieder ansetzen.
       </h1>
 
-      <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">
-        Lass uns kurz schauen, wie es dir heute geht. Nur drei Fragen — ruhig,
-        ehrlich, ohne Druck.
-      </p>
+<p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">
+  Lass uns kurz schauen, wie es dir heute geht. Nur drei Fragen — ruhig,
+  ehrlich, ohne Druck.
+</p>
+
+<p className="mx-auto mt-4 max-w-xl text-sm text-neutral-500">
+  Dein letztes Muster ist noch da — wir schauen nur, wie es sich heute zeigt.
+</p>
 
       {previousInsight && (
         <div className="mt-6 rounded-2xl bg-white p-5 text-left">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400">
-            Dein letzter Klarflow
+            Das hast du über dich erkannt
           </p>
 
           <p className="whitespace-pre-line text-sm leading-relaxed text-neutral-700">
@@ -568,7 +579,7 @@ const handleReturningAnswer = async (answer: string) => {
         onClick={startNewCheckIn}
         className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.98]"
       >
-        Kurzen Check-in starten
+        Kurz wieder reinschauen
       </button>
     </motion.div>
   </section>
@@ -615,7 +626,11 @@ const handleReturningAnswer = async (answer: string) => {
                       <button
                         key={i}
                         onClick={() => handleReturningAnswer(opt)}
-                        className="w-full rounded-2xl bg-neutral-100 px-7 py-5 text-left text-lg font-semibold text-neutral-900 transition-all duration-200 hover:scale-[1.01] hover:bg-neutral-200 active:scale-[0.98]"
+                        className={`w-full rounded-2xl px-7 py-5 text-left text-lg font-semibold transition-all duration-200 active:scale-[0.98] ${
+  selectedAnswer === opt
+    ? "bg-[#08a99d] text-white scale-[1.01]"
+    : "bg-neutral-100 text-neutral-900 hover:scale-[1.01] hover:bg-neutral-200"
+}`}
                       >
                         {opt}
                       </button>
@@ -643,13 +658,21 @@ const handleReturningAnswer = async (answer: string) => {
                     {generateReturningReflection(returningAnswers)}
                   </p>
 <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-neutral-500">
-  Wenn du möchtest, komm morgen wieder kurz zurück. Nur eine Minute reicht.
+  Achte morgen auf genau einen Moment —
+  den, in dem dein Muster normalerweise automatisch startet.
+</p>
+
+<p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-neutral-400">
+  Wenn du ihn erkennst, reicht das völlig.
+</p>
+<p className="mt-6 text-xs text-neutral-400">
+  Du kannst jederzeit kurz zurückkommen.
 </p>
                   <button
                     onClick={() => setReturningMode(false)}
                     className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.98]"
                   >
-                    Zur Startseite
+                    Für heute abschließen
                   </button>
                 </motion.div>
               </section>
@@ -688,12 +711,14 @@ const handleReturningAnswer = async (answer: string) => {
                     <p className="text-xl font-semibold leading-relaxed text-neutral-900 md:text-2xl">
                       {checkpointFeedback}
                     </p>
-
+<p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-neutral-500">
+  Du bist bereits halb durch. Ab hier wird dein Muster noch klarer.
+</p>
                     <button
                       onClick={handleCheckpointContinue}
                       className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.98]"
                     >
-                      Weiter
+                      Weiter zu den letzten 5 Fragen
                     </button>
                   </div>
                 </motion.div>
@@ -738,15 +763,19 @@ const handleReturningAnswer = async (answer: string) => {
         ) : (
           <section className="mx-auto w-full max-w-3xl flex-1 py-12">
             <div className="text-center">
-              <h2 className="text-4xl font-extrabold tracking-tight">
-                Dein persönlicher Überblick
-              </h2>
+          <h2 className="text-4xl font-extrabold tracking-tight">
+  Das ist gerade bei dir sichtbar geworden
+</h2>
               <p className="mx-auto mt-5 max-w-2xl whitespace-pre-line text-lg leading-relaxed text-neutral-600">
                 {generateInsight(answers)}
               </p>
+              <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-neutral-500">
+  Die meisten verlieren diesen Moment wieder im Alltag.
+  Du kannst ihn behalten.
+</p>
             </div>
 
-            <div className="mt-10 grid gap-4">
+            <div className="mt-10 grid gap-4 opacity-90">
               <div className="rounded-3xl bg-neutral-100 p-6">
                 <h3 className="text-lg font-bold">Was wir erkennen</h3>
                 <p className="mt-2 leading-relaxed text-neutral-600">
@@ -773,7 +802,7 @@ const handleReturningAnswer = async (answer: string) => {
               </div>
             </div>
 
-            <div className="mt-8 rounded-3xl bg-neutral-950 p-7 text-white">
+            <div className="mt-6 rounded-3xl bg-neutral-950 p-7 text-white">
               <h3 className="text-center text-2xl font-extrabold">
                 Soll ich dir deinen Klarflow zusenden?
               </h3>

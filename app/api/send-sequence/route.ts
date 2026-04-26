@@ -20,7 +20,9 @@ function emailShell(title: string, label: string, body: string) {
     </h1>
 
     ${body}
-
+<p style="margin-top:24px; font-size:13px; color:#737373;">
+  Dauert unter 1 Minute. Keine Anmeldung nötig.
+</p>
     <p style="margin-top:34px;">— Klarflow</p>
   </div>
   `;
@@ -51,8 +53,10 @@ function darkBlock(title: string, text: string, email: string) {
     <p style="margin-bottom:16px; color:#d4d4d4;">${text}</p>
 
     <p style="margin-bottom:16px; color:#d4d4d4;">
-      Es gibt einen Moment, den du heute noch sehen kannst.
-    </p>
+  Vielleicht kommt genau heute wieder so ein Moment.
+  <br/>
+  Schau kurz hin, bevor der Tag weiterläuft.
+</p>
 
     <a href="${returnUrl}"
        style="display:inline-block; padding:12px 20px; background:#ffffff; color:#171717; text-decoration:none; border-radius:12px; font-weight:600;">
@@ -69,9 +73,9 @@ function buildEmailDay2(insight: string, email: string) {
     `
     <p>Hallo,</p>
 
-    <p>
-      gestern hast du etwas bei dir klar gesehen.
-    </p>
+  <p>
+  gestern hast du etwas erkannt, das im Alltag oft untergeht.
+</p>
 
     ${insightBlock(insight)}
 

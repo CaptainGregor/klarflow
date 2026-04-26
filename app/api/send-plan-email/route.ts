@@ -128,13 +128,15 @@ function buildEmailHtml(insight: string, readiness: string, email: string) {
           Ein einziger bewusster Moment kann bereits etwas verändern.
         </p>
 
-        <p style="margin-bottom: 16px; color: #d4d4d4;">
-          Es gibt einen Moment, den du heute noch sehen kannst.
-        </p>
+    <p style="margin-bottom:16px; color:#d4d4d4;">
+  Die meisten merken es erst im Nachhinein.
+  <br/>
+  Du kannst es heute früher sehen.
+</p>
 
         <a href="${returnUrl}"
            style="display:inline-block; padding:12px 20px; background:#ffffff; color:#171717; text-decoration:none; border-radius:12px; font-weight:600;">
-           Nimm dir jetzt 1 Minute für dich
+           Schau kurz, wie es heute aussieht
         </a>
       </div>
 

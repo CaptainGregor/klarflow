@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const { data, error } = await supabase
       .from("leads")
-      .select("insight")
+      .select("id, insight, return_count")
       .eq("email", email)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -23,6 +23,16 @@ export async function POST(req: Request) {
 
     if (error) {
       return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    if (data?.id) {
+      await supabase
+        .from("leads")
+        .update({
+          returned_at: new Date().toISOString(),
+          return_count: (data.return_count || 0) + 1,
+        })
+        .eq("id", data.id);
     }
 
     return Response.json({

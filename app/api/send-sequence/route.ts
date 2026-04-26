@@ -47,11 +47,16 @@ function darkBlock(title: string, text: string, email: string) {
   return `
   <div style="background:#171717; color:#ffffff; border-radius:22px; padding:22px; margin-top:30px;">
     <p style="margin-top:0; font-weight:700;">${title}</p>
+
     <p style="margin-bottom:16px; color:#d4d4d4;">${text}</p>
+
+    <p style="margin-bottom:16px; color:#d4d4d4;">
+      Es gibt einen Moment, den du heute noch sehen kannst.
+    </p>
 
     <a href="${returnUrl}"
        style="display:inline-block; padding:12px 20px; background:#ffffff; color:#171717; text-decoration:none; border-radius:12px; font-weight:600;">
-       Zurück zu Klarflow
+       Nimm dir jetzt 1 Minute für dich
     </a>
   </div>
   `;
@@ -155,9 +160,9 @@ function buildEmailDay7(insight: string, email: string) {
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
 
-if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-  return new Response("Unauthorized", { status: 401 });
-}
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response("Unauthorized", { status: 401 });
+  }
 
   const now = new Date();
 
@@ -176,7 +181,7 @@ if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     const diffHours =
       (now.getTime() - created.getTime()) / (1000 * 60 * 60);
 
-   if (diffHours > 24 && !lead.email_sent_2) {
+    if (diffHours > 24 && !lead.email_sent_2) {
       const result2 = await resend.emails.send({
         from: "Klarflow <hello@klarflow.de>",
         to: lead.email,

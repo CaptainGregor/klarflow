@@ -2,7 +2,6 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// 🧠 Dynamic next step based on readiness
 function getNextStep(readiness: string) {
   if (readiness === "Ich denke darüber nach") {
     return `
@@ -38,7 +37,6 @@ function getNextStep(readiness: string) {
   `;
 }
 
-// 🧠 Dynamic tone block
 function getMotivationBlock(readiness: string) {
   if (readiness === "Ich denke darüber nach") {
     return `
@@ -73,16 +71,17 @@ function getMotivationBlock(readiness: string) {
   `;
 }
 
-// 🎨 Email builder
-function buildEmailHtml(insight: string, readiness: string) {
+function buildEmailHtml(insight: string, readiness: string, email: string) {
   const formattedInsight = insight.replace(/\n/g, "<br />");
-
   const nextStep = getNextStep(readiness);
   const motivation = getMotivationBlock(readiness);
 
+  const returnUrl = `https://klarflow.vercel.app?returning=true&email=${encodeURIComponent(
+    email
+  )}`;
+
   return `
     <div style="font-family: Arial, sans-serif; line-height: 1.65; color: #171717; max-width: 640px; margin: 0 auto; padding: 28px;">
-      
       <p style="font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: #08a99d; font-weight: 700;">
         Klarflow Report
       </p>
@@ -112,31 +111,36 @@ function buildEmailHtml(insight: string, readiness: string) {
         Was dir jetzt helfen kann
       </h2>
 
-      <p>
-        ${motivation}
-      </p>
+      <p>${motivation}</p>
 
       <h2 style="font-size: 20px; margin-top: 30px;">
         Dein nächster Schritt
       </h2>
 
-      <p>
-        ${nextStep}
-      </p>
+      <p>${nextStep}</p>
 
       <div style="background: #171717; color: #ffffff; border-radius: 22px; padding: 22px; margin-top: 30px;">
         <p style="margin-top: 0; font-weight: 700;">
           Du musst das nicht perfekt machen.
         </p>
-        <p style="margin-bottom: 0; color: #d4d4d4;">
+
+        <p style="margin-bottom: 16px; color: #d4d4d4;">
           Ein einziger bewusster Moment kann bereits etwas verändern.
         </p>
+
+        <p style="margin-bottom: 16px; color: #d4d4d4;">
+          Es gibt einen Moment, den du heute noch sehen kannst.
+        </p>
+
+        <a href="${returnUrl}"
+           style="display:inline-block; padding:12px 20px; background:#ffffff; color:#171717; text-decoration:none; border-radius:12px; font-weight:600;">
+           Nimm dir jetzt 1 Minute für dich
+        </a>
       </div>
 
       <p style="margin-top: 34px;">
         — Klarflow
       </p>
-
     </div>
   `;
 }
@@ -157,7 +161,7 @@ export async function POST(req: Request) {
       from: "Klarflow <hello@klarflow.de>",
       to: email,
       subject: "Dein Klarflow Report",
-      html: buildEmailHtml(insight, readiness || ""),
+      html: buildEmailHtml(insight, readiness || "", email),
     });
 
     return Response.json({ success: true, result });

@@ -30,6 +30,48 @@ function generateInsight(answers: string[]) {
 Die gute Nachricht: Genau diese Klarheit ist der erste Schritt, um bewusst etwas zu verändern.`;
 }
 
+function generatePatternTitle(answers: string[]) {
+  if (answers.includes("Stress oder Überforderung")) {
+    return "Stress als zentraler Auslöser";
+  }
+
+  if (answers.includes("Einsamkeit")) {
+    return "Alleinsein als emotionaler Auslöser";
+  }
+
+  if (answers.includes("Langeweile")) {
+    return "Langeweile als wiederkehrender Auslöser";
+  }
+
+  if (answers.includes("Gewohnheit / Automatismus")) {
+    return "Ein automatisiertes Gewohnheitsmuster";
+  }
+
+  return "Ein wiederkehrendes Muster";
+}
+
+function generateNextStep(answers: string[]) {
+  const readiness = answers[answers.length - 1];
+
+  if (readiness === "Ich denke darüber nach") {
+    return "Du musst heute noch nichts verändern. Nimm nur einen Moment wahr, in dem dieses Muster auftaucht.";
+  }
+
+  if (readiness === "Ich will kleine Schritte gehen") {
+    return "Beobachte heute einen Moment bewusst — und pausiere kurz davor. Kein Druck, nur ein kleines Innehalten.";
+  }
+
+  if (readiness === "Ich bin bereit, ernsthaft anzusetzen") {
+    return "Setze dir heute einen klaren Moment, in dem du bewusst unterbrichst. Entscheide dich aktiv anders — auch wenn es sich ungewohnt anfühlt.";
+  }
+
+  if (readiness === "Ich will jetzt einen echten Wandel") {
+    return "Triff heute eine klare Entscheidung: In einem Moment handelst du bewusst anders — egal wie stark das Muster ist.";
+  }
+
+  return "Beobachte heute nur einen einzigen Moment ganz bewusst. Noch nichts ändern. Nur erkennen.";
+}
+
 function generateCheckpointFeedback(recentAnswers: string[]) {
   if (recentAnswers.includes("Stress oder Überforderung")) {
     return "Du erkennst bereits sehr klar, dass Stress eine wichtige Rolle spielt. Das ist kein kleiner Punkt — genau diese Klarheit kann der Anfang von echter Veränderung sein.";
@@ -68,7 +110,7 @@ Nicht Druck. Nicht Perfektion.
 Sondern ein bewusster Moment, bevor du automatisch handelst.
 
 Dein nächster kleiner Schritt für heute:
-Beobachte heute nur einen einzigen Moment ganz bewusst, bevor du zum Handy greifst oder in ein automatisches Muster rutschst. Noch nichts bekämpfen. Nur erkennen.
+${generateNextStep(answers)}
 
 Du musst das nicht perfekt machen.
 Ein erster bewusster Moment ist bereits ein Fortschritt.
@@ -267,16 +309,39 @@ export default function Home() {
     setReturningDone(false);
   };
 
-  const handleReturningAnswer = (answer: string) => {
-    const updated = [...returningAnswers, answer];
-    setReturningAnswers(updated);
+const saveReturningCheckin = async (finalAnswers: string[]) => {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get("email");
 
-    if (returningStep + 1 < returningSteps.length) {
-      setReturningStep(returningStep + 1);
-    } else {
-      setReturningDone(true);
-    }
-  };
+    if (!emailParam) return;
+
+    await fetch("/api/save-checkin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: emailParam,
+        returningAnswers: finalAnswers,
+      }),
+    });
+  } catch (error) {
+    console.error("Error saving returning check-in:", error);
+  }
+};
+
+const handleReturningAnswer = async (answer: string) => {
+  const updated = [...returningAnswers, answer];
+  setReturningAnswers(updated);
+
+  if (returningStep + 1 < returningSteps.length) {
+    setReturningStep(returningStep + 1);
+  } else {
+    await saveReturningCheckin(updated);
+    setReturningDone(true);
+  }
+};
 
   const handleAnswer = (answer: string) => {
     const updated = [...answers, answer];
@@ -310,6 +375,9 @@ export default function Home() {
   const handleEmailSave = async () => {
     const trimmed = email.trim();
     const insight = generateInsight(answers);
+    const readiness = answers[answers.length - 1] || "";
+    const patternTitle = generatePatternTitle(answers);
+    const nextStep = generateNextStep(answers);
 
     if (!trimmed) {
       setEmailError("Bitte gib deine E-Mail-Adresse ein.");
@@ -330,6 +398,10 @@ export default function Home() {
         email: trimmed,
         answers: JSON.stringify(answers),
         insight,
+        readiness,
+        pattern_title: patternTitle,
+        next_step: nextStep,
+        report_version: "v1",
       },
     ]);
 
@@ -345,7 +417,7 @@ export default function Home() {
       body: JSON.stringify({
         email: trimmed,
         insight,
-        readiness: answers[answers.length - 1],
+        readiness,
       }),
     });
 
@@ -388,11 +460,11 @@ export default function Home() {
                 Willkommen zurück
               </p>
 
-           <h1 className="text-4xl font-extrabold tracking-tight">
-  Du warst schon einmal ehrlich mit dir.
-  <br />
-  Lass uns genau dort weitermachen.
-</h1>
+              <h1 className="text-4xl font-extrabold tracking-tight">
+                Du warst schon einmal ehrlich mit dir.
+                <br />
+                Lass uns genau dort weitermachen.
+              </h1>
 
               <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">
                 Lass uns kurz schauen, wie es dir heute geht. Nur drei Fragen —
@@ -489,7 +561,9 @@ export default function Home() {
                   <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">
                     {generateReturningReflection(returningAnswers)}
                   </p>
-
+<p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-neutral-500">
+  Wenn du möchtest, komm morgen wieder kurz zurück. Nur eine Minute reicht.
+</p>
                   <button
                     onClick={() => setReturningMode(false)}
                     className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.98]"
@@ -613,9 +687,7 @@ export default function Home() {
                   Dein nächster kleiner Schritt
                 </h3>
                 <p className="mt-2 leading-relaxed text-neutral-600">
-                  Beobachte heute nur einen einzigen Moment ganz bewusst, bevor
-                  du automatisch zum Handy greifst. Noch nichts ändern. Nur
-                  erkennen.
+                  {generateNextStep(answers)}
                 </p>
               </div>
             </div>

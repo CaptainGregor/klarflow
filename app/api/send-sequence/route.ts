@@ -39,13 +39,17 @@ function insightBlock(insight: string) {
   `;
 }
 
-function darkBlock(title: string, text: string) {
+function darkBlock(title: string, text: string, email: string) {
+  const returnUrl = `https://klarflow.vercel.app?returning=true&email=${encodeURIComponent(
+    email
+  )}`;
+
   return `
   <div style="background:#171717; color:#ffffff; border-radius:22px; padding:22px; margin-top:30px;">
     <p style="margin-top:0; font-weight:700;">${title}</p>
     <p style="margin-bottom:16px; color:#d4d4d4;">${text}</p>
 
-    <a href="https://klarflow.vercel.app?returning=true"
+    <a href="${returnUrl}"
        style="display:inline-block; padding:12px 20px; background:#ffffff; color:#171717; text-decoration:none; border-radius:12px; font-weight:600;">
        Zurück zu Klarflow
     </a>
@@ -53,7 +57,7 @@ function darkBlock(title: string, text: string) {
   `;
 }
 
-function buildEmailDay2(insight: string) {
+function buildEmailDay2(insight: string, email: string) {
   return emailShell(
     "Der Moment davor",
     "Klarflow · Tag 2",
@@ -76,13 +80,14 @@ function buildEmailDay2(insight: string) {
 
     ${darkBlock(
       "Für heute reicht eine Sekunde.",
-      "Wenn dieser Moment heute kommt, halte kurz inne. Mehr ist nicht nötig."
+      "Wenn dieser Moment heute kommt, halte kurz inne. Mehr ist nicht nötig.",
+      email
     )}
     `
   );
 }
 
-function buildEmailDay3(insight: string) {
+function buildEmailDay3(insight: string, email: string) {
   return emailShell(
     "Du musst das nicht perfekt machen",
     "Klarflow · Tag 3",
@@ -105,13 +110,14 @@ function buildEmailDay3(insight: string) {
 
     ${darkBlock(
       "Wenn du zurückfällst, ist das kein Scheitern.",
-      "Es ist Teil des Weges. Komm einfach wieder zurück — ruhig, ohne Druck."
+      "Es ist Teil des Weges. Komm einfach wieder zurück — ruhig, ohne Druck.",
+      email
     )}
     `
   );
 }
 
-function buildEmailDay7(insight: string) {
+function buildEmailDay7(insight: string, email: string) {
   return emailShell(
     "Was sich verändert, wenn du hinschaust",
     "Klarflow · Tag 7",
@@ -139,7 +145,8 @@ function buildEmailDay7(insight: string) {
 
     ${darkBlock(
       "Eine Frage für heute:",
-      "Was ist der eine Moment, in dem ich heute kurz wach bleiben kann?"
+      "Was ist der eine Moment, in dem ich heute kurz wach bleiben kann?",
+      email
     )}
     `
   );
@@ -174,7 +181,7 @@ export async function GET(request: Request) {
         from: "Klarflow <hello@klarflow.de>",
         to: lead.email,
         subject: "Der Moment davor",
-        html: buildEmailDay2(lead.insight || ""),
+        html: buildEmailDay2(lead.insight || "", lead.email),
       });
 
       console.log("Day 2 Resend result:", result2);
@@ -190,7 +197,7 @@ export async function GET(request: Request) {
         from: "Klarflow <hello@klarflow.de>",
         to: lead.email,
         subject: "Du musst das nicht perfekt machen",
-        html: buildEmailDay3(lead.insight || ""),
+        html: buildEmailDay3(lead.insight || "", lead.email),
       });
 
       console.log("Day 3 Resend result:", result3);
@@ -206,7 +213,7 @@ export async function GET(request: Request) {
         from: "Klarflow <hello@klarflow.de>",
         to: lead.email,
         subject: "Was sich verändert, wenn du hinschaust",
-        html: buildEmailDay7(lead.insight || ""),
+        html: buildEmailDay7(lead.insight || "", lead.email),
       });
 
       console.log("Day 7 Resend result:", result7);

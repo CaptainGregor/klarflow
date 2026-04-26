@@ -221,6 +221,7 @@ export default function Home() {
   );
 
   const [showReturnScreen, setShowReturnScreen] = useState(false);
+  const [previousInsight, setPreviousInsight] = useState<string | null>(null);
   const [returningMode, setReturningMode] = useState(false);
   const [returningStep, setReturningStep] = useState(0);
   const [returningAnswers, setReturningAnswers] = useState<string[]>([]);
@@ -231,9 +232,30 @@ export default function Home() {
   const [emailError, setEmailError] = useState("");
 
   useEffect(() => {
+    const loadUserData = async (userEmail: string) => {
+      const response = await fetch("/api/get-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userEmail }),
+      });
+
+      const result = await response.json();
+
+      if (result?.insight) {
+        setPreviousInsight(result.insight);
+      }
+    };
+
     const params = new URLSearchParams(window.location.search);
-    if (params.get("returning") === "true") {
+    const isReturning = params.get("returning") === "true";
+    const emailParam = params.get("email");
+
+    if (isReturning) {
       setShowReturnScreen(true);
+    }
+
+    if (emailParam) {
+      loadUserData(emailParam);
     }
   }, []);
 
@@ -374,6 +396,18 @@ export default function Home() {
                 Lass uns kurz schauen, wie es dir heute geht. Nur drei Fragen —
                 ruhig, ehrlich, ohne Druck.
               </p>
+
+              {previousInsight && (
+                <div className="mt-6 rounded-2xl bg-white p-5 text-left">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400">
+                    Dein letzter Klarflow
+                  </p>
+
+                  <p className="whitespace-pre-line text-sm leading-relaxed text-neutral-700">
+                    {previousInsight}
+                  </p>
+                </div>
+              )}
 
               <button
                 onClick={startNewCheckIn}

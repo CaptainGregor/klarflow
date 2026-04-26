@@ -155,9 +155,9 @@ function buildEmailDay7(insight: string, email: string) {
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
 
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  return new Response("Unauthorized", { status: 401 });
+}
 
   const now = new Date();
 
@@ -176,7 +176,7 @@ export async function GET(request: Request) {
     const diffHours =
       (now.getTime() - created.getTime()) / (1000 * 60 * 60);
 
-    if (diffHours > 24 && !lead.email_sent_2) {
+   if (diffHours > 24 && !lead.email_sent_2) {
       const result2 = await resend.emails.send({
         from: "Klarflow <hello@klarflow.de>",
         to: lead.email,

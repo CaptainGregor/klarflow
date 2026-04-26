@@ -374,9 +374,10 @@ const handleAnswer = (answer: string) => {
 
     if (step + 1 < steps.length) {
       setStep(step + 1);
-    } else {
-      setDone(true);
-    }
+ } else {
+  localStorage.setItem("klarflow_completed_at", new Date().toISOString());
+  setDone(true);
+}
   }, 220);
 };
 
@@ -500,7 +501,10 @@ const handleAnswer = (answer: string) => {
 </div>
 
       <button
-        onClick={() => setStarted(true)}
+  onClick={() => {
+    localStorage.setItem("klarflow_started_at", new Date().toISOString());
+    setStarted(true);
+  }}
         className="mt-9 rounded-2xl bg-neutral-950 px-8 py-4 text-lg font-bold text-white transition hover:bg-neutral-800 active:scale-[0.98]"
       >
         Kurz reinschauen
@@ -545,7 +549,7 @@ const handleAnswer = (answer: string) => {
       className="rounded-[2rem] bg-[#f2fbfa] px-8 py-12 shadow-sm"
     >
       <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#08a99d]">
-        Willkommen zurück
+        Du bist wieder da
       </p>
 
       <h1 className="text-4xl font-extrabold tracking-tight">

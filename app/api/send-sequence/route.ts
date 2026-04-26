@@ -42,9 +42,9 @@ function insightBlock(insight: string) {
 }
 
 function darkBlock(title: string, text: string, email: string) {
-  const returnUrl = `https://klarflow.vercel.app?returning=true&email=${encodeURIComponent(
-    email
-  )}`;
+ const returnUrl = `https://klarflow.vercel.app?returning=true&email=${encodeURIComponent(
+  email
+)}&ref=checkin`;
 
   return `
   <div style="background:#171717; color:#ffffff; border-radius:22px; padding:22px; margin-top:30px;">

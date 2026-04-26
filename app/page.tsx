@@ -152,80 +152,90 @@ const visuals = [
 ];
 
 const steps = [
-  {
-    question: "In welchen Momenten merkst du, dass du dich ein wenig verlierst?",
-    options: [
-      "Abends im Bett",
-      "Wenn ich alleine bin",
-      "Bei Stress oder Druck",
-      "Eigentlich über den ganzen Tag verteilt",
-    ],
-  },
-  {
-    question: "Wie bewusst ist dir dieser Moment, wenn es passiert?",
-    options: [
+ {
+  question: "In welchen Momenten merkst du, dass du dich ein wenig verlierst?",
+  helper: "Es gibt keine falsche Antwort. Wähle einfach, was sich am vertrautesten anfühlt.",
+  options: [
+    "Abends im Bett",
+    "Wenn ich alleine bin",
+    "Bei Stress oder Druck",
+    "Eigentlich über den ganzen Tag verteilt",
+  ],
+},
+{
+  question: "Wie bewusst ist dir dieser Moment, wenn es passiert?",
+  helper: "Wichtig ist nicht, perfekt zu beschreiben — sondern ehrlich zu bemerken.",
+  options: [
       "Ich merke es kaum",
       "Ich merke es, aber mache weiter",
       "Ich bin mir bewusst, aber fühle mich machtlos",
       "Ich will stoppen, schaffe es aber nicht",
     ],
   },
-  {
-    question: "Was ist meistens der Auslöser?",
-    options: [
+{
+  question: "Was ist meistens der Auslöser?",
+  helper: "Oft steckt hinter dem Verhalten ein Auslöser. Schau nur, was am ehesten passt.",
+  options: [
       "Langeweile",
       "Stress oder Überforderung",
       "Einsamkeit",
       "Gewohnheit / Automatismus",
     ],
   },
-  {
-    question: "Wie lange bleibst du typischerweise darin?",
-    options: [
+ {
+  question: "Wie lange bleibst du typischerweise darin?",
+  helper: "Es geht nicht um Schuld. Nur darum, wie stark der Moment dich mitnimmt.",
+  options: [
       "Nur ein paar Minuten",
       "Oft länger als geplant",
       "Manchmal mehrere Stunden",
       "Ich verliere komplett das Zeitgefühl",
     ],
   },
-  {
-    question: "Wie fühlst du dich danach?",
-    options: [
+{
+  question: "Wie fühlst du dich danach?",
+  helper: "Wähle nicht die Antwort, die besser klingt — sondern die, die näher dran ist.",
+  options: [
       "Neutral",
       "Leicht unzufrieden",
       "Schuldig oder frustriert",
       "Leer oder erschöpft",
     ],
   },
-  {
-    question: "Wie sehr beeinflusst das deinen Alltag?",
-    options: ["Kaum", "Ein bisschen", "Spürbar", "Es belastet mich deutlich"],
+{
+  question: "Wie sehr beeinflusst das deinen Alltag?",
+  helper: "Manchmal wirkt ein Muster leise. Manchmal deutlich. Beides darf sein.",
+  options: ["Kaum", "Ein bisschen", "Spürbar", "Es belastet mich deutlich"],
   },
-  {
-    question: "Hast du schon versucht, etwas daran zu ändern?",
-    options: [
+{
+  question: "Hast du schon versucht, etwas daran zu ändern?",
+  helper: "Auch frühere Versuche zählen. Sie zeigen, dass ein Teil von dir bereits hinschaut.",
+  options: [
       "Noch nicht",
       "Ein paar Mal",
       "Mehrfach, aber ohne Erfolg",
       "Ich versuche es ständig",
     ],
   },
-  {
-    question: "Was hält dich am meisten davon ab, wirklich auszubrechen?",
-    options: [
+{
+  question: "Was hält dich am meisten davon ab, wirklich auszubrechen?",
+  helper: "Das Hindernis ist kein Charakterfehler. Es zeigt nur, wo Unterstützung fehlt.",
+  options: [
       "Ich weiß nicht wie",
       "Mir fehlt die Disziplin",
       "Es ist zu tief Gewohnheit",
       "Ich fühle mich allein damit",
     ],
   },
-  {
-    question: "Was würdest du dir stattdessen wünschen?",
-    options: ["Mehr Kontrolle", "Mehr Fokus", "Mehr Energie", "Innere Ruhe"],
+{
+  question: "Was würdest du dir stattdessen wünschen?",
+  helper: "Dein Wunsch zeigt, in welche Richtung dein System eigentlich will.",
+  options: ["Mehr Kontrolle", "Mehr Fokus", "Mehr Energie", "Innere Ruhe"],
   },
-  {
-    question: "Wie bereit bist du, wirklich etwas zu verändern?",
-    options: [
+ {
+  question: "Wie bereit bist du, wirklich etwas zu verändern?",
+  helper: "Es geht nicht um Druck. Nur darum, wie viel Veränderung sich gerade möglich anfühlt.",
+  options: [
       "Ich denke darüber nach",
       "Ich will kleine Schritte gehen",
       "Ich bin bereit, ernsthaft anzusetzen",
@@ -272,7 +282,7 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [emailSaved, setEmailSaved] = useState(false);
   const [emailError, setEmailError] = useState("");
-
+const [started, setStarted] = useState(false);
   useEffect(() => {
     const loadUserData = async (userEmail: string) => {
       const response = await fetch("/api/get-lead", {
@@ -292,9 +302,10 @@ export default function Home() {
     const isReturning = params.get("returning") === "true";
     const emailParam = params.get("email");
 
-    if (isReturning) {
-      setShowReturnScreen(true);
-    }
+if (isReturning) {
+  setShowReturnScreen(true);
+  setStarted(true);
+}
 
     if (emailParam) {
       loadUserData(emailParam);
@@ -448,49 +459,119 @@ const handleReturningAnswer = async (answer: string) => {
           </div>
         </header>
 
-        {showReturnScreen ? (
-          <section className="mx-auto flex w-full max-w-3xl flex-1 items-center justify-center py-12 text-center">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.35 }}
-              className="rounded-[2rem] bg-[#f2fbfa] px-8 py-12 shadow-sm"
-            >
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#08a99d]">
-                Willkommen zurück
-              </p>
+{!started ? (
+  <section className="mx-auto flex w-full max-w-4xl flex-1 items-center justify-center py-12 text-center">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="w-full"
+    >
+      <p className="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-[#08a99d]">
+        1-Minuten Check-in
+      </p>
 
-              <h1 className="text-4xl font-extrabold tracking-tight">
-                Du warst schon einmal ehrlich mit dir.
-                <br />
-                Lass uns genau dort weitermachen.
-              </h1>
+      <h1 className="mx-auto max-w-3xl text-5xl font-extrabold leading-tight tracking-tight md:text-6xl">
+        Du merkst es erst, wenn es schon passiert ist.
+      </h1>
 
-              <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">
-                Lass uns kurz schauen, wie es dir heute geht. Nur drei Fragen —
-                ruhig, ehrlich, ohne Druck.
-              </p>
+<p className="mx-auto mt-6 max-w-2xl text-xl leading-relaxed text-neutral-600">
+  Klarflow hilft dir, den Moment davor zu erkennen — ruhig, ehrlich und
+  ohne Druck.
+</p>
 
-              {previousInsight && (
-                <div className="mt-6 rounded-2xl bg-white p-5 text-left">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400">
-                    Dein letzter Klarflow
-                  </p>
+<div className="mx-auto mt-7 max-w-xl rounded-3xl bg-[#f2fbfa] px-6 py-5 text-left">
+  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#08a99d]">
+    Am Ende bekommst du
+  </p>
 
-                  <p className="whitespace-pre-line text-sm leading-relaxed text-neutral-700">
-                    {previousInsight}
-                  </p>
-                </div>
-              )}
+  <div className="mt-4 grid gap-3 text-base text-neutral-700">
+    <p>→ ein Muster, das dich gerade unbewusst steuert</p>
+    <p>→ eine ruhige Einordnung ohne Bewertung</p>
+    <p>→ einen kleinen nächsten Schritt für heute</p>
+  </div>
+</div>
 
-              <button
-                onClick={startNewCheckIn}
-                className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.98]"
-              >
-                Kurzen Check-in starten
-              </button>
-            </motion.div>
-          </section>
+      <button
+        onClick={() => setStarted(true)}
+        className="mt-9 rounded-2xl bg-neutral-950 px-8 py-4 text-lg font-bold text-white transition hover:bg-neutral-800 active:scale-[0.98]"
+      >
+        Kurz reinschauen
+      </button>
+
+      <p className="mt-4 text-sm text-neutral-400">
+        Kostenlos · Keine Anmeldung nötig · Dauert ungefähr 1 Minute
+      </p>
+
+      <div className="mx-auto mt-14 grid max-w-3xl gap-4 text-left md:grid-cols-3">
+        <div className="rounded-3xl bg-neutral-100 p-6">
+          <h3 className="font-bold">Nicht noch mehr Druck</h3>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+            Kein schlechtes Gewissen. Kein Perfektionismus. Nur ehrliches
+            Hinschauen.
+          </p>
+        </div>
+
+        <div className="rounded-3xl bg-neutral-100 p-6">
+          <h3 className="font-bold">Erkenne dein Muster</h3>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+            Du siehst, wann es passiert, was es auslöst und was danach bleibt.
+          </p>
+        </div>
+
+        <div className="rounded-3xl bg-neutral-100 p-6">
+          <h3 className="font-bold">Ein kleiner Schritt</h3>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+            Am Ende bekommst du einen nächsten Schritt, der zu deinem Moment
+            passt.
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  </section>
+) : showReturnScreen ? (
+    <section className="mx-auto flex w-full max-w-3xl flex-1 items-center justify-center py-12 text-center">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.35 }}
+      className="rounded-[2rem] bg-[#f2fbfa] px-8 py-12 shadow-sm"
+    >
+      <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#08a99d]">
+        Willkommen zurück
+      </p>
+
+      <h1 className="text-4xl font-extrabold tracking-tight">
+        Du warst schon einmal ehrlich mit dir.
+        <br />
+        Lass uns genau dort weitermachen.
+      </h1>
+
+      <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">
+        Lass uns kurz schauen, wie es dir heute geht. Nur drei Fragen — ruhig,
+        ehrlich, ohne Druck.
+      </p>
+
+      {previousInsight && (
+        <div className="mt-6 rounded-2xl bg-white p-5 text-left">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400">
+            Dein letzter Klarflow
+          </p>
+
+          <p className="whitespace-pre-line text-sm leading-relaxed text-neutral-700">
+            {previousInsight}
+          </p>
+        </div>
+      )}
+
+      <button
+        onClick={startNewCheckIn}
+        className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.98]"
+      >
+        Kurzen Check-in starten
+      </button>
+    </motion.div>
+  </section>
         ) : returningMode ? (
           <section className="flex flex-1 flex-col pt-8 md:pt-12">
             <div className="mb-12">
@@ -635,9 +716,9 @@ const handleReturningAnswer = async (answer: string) => {
                     {steps[step].question}
                   </h1>
 
-                  <p className="mt-3 text-sm text-neutral-400">
-                    Wähle die Antwort, die sich für dich am ehrlichsten anfühlt.
-                  </p>
+              <p className="mt-3 text-sm text-neutral-400">
+  {steps[step].helper || "Wähle die Antwort, die sich für dich am ehrlichsten anfühlt."}
+</p>
 
                   <div className="mx-auto mt-10 grid w-full max-w-2xl gap-4">
                     {steps[step].options.map((opt, i) => (
@@ -694,13 +775,11 @@ const handleReturningAnswer = async (answer: string) => {
 
             <div className="mt-8 rounded-3xl bg-neutral-950 p-7 text-white">
               <h3 className="text-center text-2xl font-extrabold">
-                Möchtest du diesen Moment nicht verlieren?
+                Soll ich dir deinen Klarflow zusenden?
               </h3>
 
               <p className="mx-auto mt-4 max-w-xl text-center leading-relaxed text-neutral-300">
-                Du hast gerade etwas bei dir erkannt, das im Alltag oft
-                untergeht. Wenn du möchtest, senden wir dir deinen persönlichen
-                Überblick und die nächsten Schritte per E-Mail.
+               Damit du diesen Moment später wiederfindest, schicken wir dir deinen persönlichen Überblick und deinen kleinen nächsten Schritt per E-Mail.
               </p>
 
               <input
@@ -715,12 +794,12 @@ const handleReturningAnswer = async (answer: string) => {
                 className="mt-6 w-full rounded-2xl border border-white/20 bg-white px-5 py-4 text-neutral-900 outline-none"
               />
 
-              <button
-                onClick={handleEmailSave}
-                className="mt-4 w-full rounded-2xl bg-[#4b28e8] py-4 font-bold text-white transition hover:bg-[#3d20c7]"
-              >
-                Moment speichern
-              </button>
+ <button
+  onClick={handleEmailSave}
+  className="mt-4 w-full rounded-2xl bg-[#08a99d] py-4 font-bold text-white transition hover:bg-[#078f86] active:scale-[0.98]"
+>
+  Meinen Klarflow senden
+</button>
 
               <button className="mt-3 w-full rounded-2xl py-3 text-sm text-neutral-400 hover:text-white">
                 Erst einmal ohne weiter
@@ -739,7 +818,7 @@ const handleReturningAnswer = async (answer: string) => {
               )}
 
               <p className="mt-5 text-center text-xs text-neutral-500">
-                Wir behandeln deine Angaben vertraulich.
+                Kein Spam. Kein Druck. Nur dein persönlicher Überblick.
               </p>
             </div>
 

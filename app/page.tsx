@@ -330,6 +330,7 @@ export default function Home() {
   const [returningAnswers, setReturningAnswers] = useState<string[]>([]);
   const [returningDone, setReturningDone] = useState(false);
 const [showIntervention, setShowIntervention] = useState(false);
+const [showChoicePoint, setShowChoicePoint] = useState(false);
   const [email, setEmail] = useState("");
   const [emailSaved, setEmailSaved] = useState(false);
   const [emailError, setEmailError] = useState("");
@@ -689,14 +690,56 @@ const handleAnswer = (answer: string) => {
 </p>
 
       <button
-        onClick={() => {
-          setShowIntervention(false);
-          setReturningStep(returningStep + 1);
-        }}
+      onClick={() => {
+  setShowIntervention(false);
+  setShowChoicePoint(true);
+}}
         className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 text-white font-semibold hover:bg-neutral-800"
       >
         {intervention.button}
       </button>
+    </motion.div>
+  </section>
+) : showChoicePoint ? (
+  <section className="mx-auto flex w-full max-w-2xl flex-1 items-center justify-center text-center">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.35 }}
+      className="rounded-[2rem] bg-white px-8 py-12 shadow-sm"
+    >
+      <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#08a99d]">
+        Deine Entscheidung
+      </p>
+
+      <h1 className="text-3xl font-extrabold tracking-tight">
+        Was wäre jetzt der kleinste bewusste Schritt?
+      </h1>
+
+      <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">
+        Nicht perfekt. Nicht groß. Nur eine kleine Unterbrechung des Autopiloten.
+      </p>
+
+      <div className="mx-auto mt-8 grid max-w-xl gap-3">
+        {[
+          "Ich lege das Handy kurz weg",
+          "Ich warte 30 Sekunden",
+          "Ich mache etwas Kleines im Raum",
+          "Ich beobachte nur, was gerade in mir passiert",
+        ].map((choice) => (
+          <button
+            key={choice}
+            onClick={() => {
+              setReturningAnswers([...returningAnswers, `Choice: ${choice}`]);
+              setShowChoicePoint(false);
+              setReturningStep(returningStep + 1);
+            }}
+            className="w-full rounded-2xl bg-neutral-100 px-6 py-4 text-left font-semibold text-neutral-900 transition hover:bg-neutral-200 active:scale-[0.98]"
+          >
+            {choice}
+          </button>
+        ))}
+      </div>
     </motion.div>
   </section>
 ) : !returningDone ? (

@@ -137,7 +137,57 @@ function generateReturningReflection(answers: string[]) {
 
   return "Du hast heute wieder kurz innegehalten. Genau solche kleinen Check-ins machen Veränderung greifbarer.";
 }
+function getInterventionContent(answers: string[]) {
+  const trigger = answers[1];
 
+  if (trigger === "Stress") {
+    return {
+      label: "Stress erkannt",
+      title: "Erst den Druck senken.",
+      body: "Bevor du weitermachst — nimm dir 10 Sekunden.",
+      instruction: "Löse kurz deine Schultern. Atme einmal langsam aus.",
+      button: "Ich bin wieder da",
+    };
+  }
+
+  if (trigger === "Langeweile") {
+    return {
+      label: "Langeweile erkannt",
+      title: "Nicht sofort füllen.",
+      body: "Bevor du automatisch weitermachst — bleib kurz bei diesem leeren Moment.",
+      instruction: "Schau dich im Raum um und benenne still drei Dinge, die du siehst.",
+      button: "Weiter",
+    };
+  }
+
+  if (trigger === "Alleinsein") {
+    return {
+      label: "Alleinsein erkannt",
+      title: "Kurz Verbindung spüren.",
+      body: "Bevor du dich weiter zurückziehst — komm für einen Moment zurück in deinen Körper.",
+      instruction: "Lege eine Hand auf deinen Brustkorb und atme einmal ruhig ein und aus.",
+      button: "Ich bin hier",
+    };
+  }
+
+  if (trigger === "Gewohnheit") {
+    return {
+      label: "Gewohnheit erkannt",
+      title: "Unterbrich den Autopilot.",
+      body: "Bevor das Muster übernimmt — mach eine kleine bewusste Unterbrechung.",
+      instruction: "Stell beide Füße auf den Boden und sag innerlich: Nicht automatisch.",
+      button: "Bewusst weiter",
+    };
+  }
+
+  return {
+    label: "Kurzer Moment",
+    title: "Stop.",
+    body: "Bevor du weitermachst — nimm dir 10 Sekunden.",
+    instruction: "Schau kurz weg vom Bildschirm. Atme einmal ruhig ein und aus.",
+    button: "Weiter",
+  };
+}
 const visuals = [
   "/focus.png",
   "/stress.png",
@@ -285,6 +335,7 @@ const [showIntervention, setShowIntervention] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [skippedEmail, setSkippedEmail] = useState(false);
 const [started, setStarted] = useState(false);
+const intervention = getInterventionContent(returningAnswers);
   useEffect(() => {
     const loadUserData = async (userEmail: string) => {
       const response = await fetch("/api/get-lead", {
@@ -622,24 +673,20 @@ const handleAnswer = (answer: string) => {
       className="rounded-[2rem] bg-[#f2fbfa] px-8 py-12 shadow-sm"
     >
       <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#08a99d]">
-        Kurzer Moment
+        {intervention.label}
       </p>
 
       <h1 className="text-3xl font-extrabold tracking-tight">
-        Stop.
+       {intervention.title}
       </h1>
 
-      <p className="mt-5 text-lg text-neutral-600 leading-relaxed">
-        Bevor du weitermachst —
-        <br />
-        nimm dir 10 Sekunden.
-      </p>
+    <p className="mt-5 text-lg text-neutral-600 leading-relaxed">
+  {intervention.body}
+</p>
 
-      <p className="mt-4 text-neutral-500">
-        Schau kurz weg vom Bildschirm.
-        <br />
-        Atme einmal ruhig ein und aus.
-      </p>
+     <p className="mt-4 text-neutral-500">
+  {intervention.instruction}
+</p>
 
       <button
         onClick={() => {
@@ -648,7 +695,7 @@ const handleAnswer = (answer: string) => {
         }}
         className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 text-white font-semibold hover:bg-neutral-800"
       >
-        Weiter
+        {intervention.button}
       </button>
     </motion.div>
   </section>

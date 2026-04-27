@@ -35,10 +35,11 @@ export async function POST(req: Request) {
         .eq("id", data.id);
     }
 
-    return Response.json({
-      success: true,
-      insight: data?.insight || null,
-    });
+return Response.json({
+  success: true,
+  insight: data?.insight || null,
+  returnCount: data?.return_count || 0,
+});
   } catch {
     return Response.json(
       { error: "Fehler beim Laden des letzten Klarflows." },

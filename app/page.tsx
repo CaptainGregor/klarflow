@@ -332,6 +332,7 @@ export default function Home() {
 
   const [showReturnScreen, setShowReturnScreen] = useState(false);
   const [previousInsight, setPreviousInsight] = useState<string | null>(null);
+  const [returnCount, setReturnCount] = useState(0);
   const [returningMode, setReturningMode] = useState(false);
   const [returningStep, setReturningStep] = useState(0);
   const [returningAnswers, setReturningAnswers] = useState<string[]>([]);
@@ -344,6 +345,7 @@ const [showChoicePoint, setShowChoicePoint] = useState(false);
   const [skippedEmail, setSkippedEmail] = useState(false);
 const [started, setStarted] = useState(false);
 const intervention = getInterventionContent(returningAnswers);
+
 const chosenAction = getChosenAction(returningAnswers);
   useEffect(() => {
     const loadUserData = async (userEmail: string) => {
@@ -355,9 +357,13 @@ const chosenAction = getChosenAction(returningAnswers);
 
       const result = await response.json();
 
-      if (result?.insight) {
-        setPreviousInsight(result.insight);
-      }
+    if (result?.insight) {
+  setPreviousInsight(result.insight);
+}
+
+if (result?.returnCount !== undefined) {
+  setReturnCount(result.returnCount);
+}
     };
 
     const params = new URLSearchParams(window.location.search);
@@ -616,6 +622,9 @@ const handleAnswer = (answer: string) => {
     >
       <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#08a99d]">
         Du bist wieder da
+        <p className="mt-2 text-sm text-neutral-400">
+  {returnCount > 0 && `Tag ${returnCount + 1} deiner Klarflow Reise`}
+</p>
       </p>
 
       <h1 className="text-4xl font-extrabold tracking-tight">
@@ -826,6 +835,9 @@ const handleAnswer = (answer: string) => {
 
 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-neutral-400">
   Wenn du ihn erkennst, reicht das völlig.
+</p>
+<p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-neutral-500">
+  Morgen geht es nicht darum, perfekt zu sein. Nur darum, diesen einen Moment etwas früher zu sehen.
 </p>
 <p className="mt-6 text-xs text-neutral-400">
   Du kannst jederzeit kurz zurückkommen.

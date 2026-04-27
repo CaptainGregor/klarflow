@@ -279,10 +279,11 @@ export default function Home() {
   const [returningStep, setReturningStep] = useState(0);
   const [returningAnswers, setReturningAnswers] = useState<string[]>([]);
   const [returningDone, setReturningDone] = useState(false);
-
+const [showIntervention, setShowIntervention] = useState(false);
   const [email, setEmail] = useState("");
   const [emailSaved, setEmailSaved] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [skippedEmail, setSkippedEmail] = useState(false);
 const [started, setStarted] = useState(false);
   useEffect(() => {
     const loadUserData = async (userEmail: string) => {
@@ -346,6 +347,11 @@ const saveReturningCheckin = async (finalAnswers: string[]) => {
 const handleReturningAnswer = async (answer: string) => {
   const updated = [...returningAnswers, answer];
   setReturningAnswers(updated);
+
+  if (returningStep === 1) {
+    setShowIntervention(true);
+    return;
+  }
 
   if (returningStep + 1 < returningSteps.length) {
     setReturningStep(returningStep + 1);
@@ -607,7 +613,46 @@ const handleAnswer = (answer: string) => {
               </div>
             </div>
 
-            {!returningDone ? (
+            {showIntervention ? (
+  <section className="mx-auto flex w-full max-w-2xl flex-1 items-center justify-center text-center">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.35 }}
+      className="rounded-[2rem] bg-[#f2fbfa] px-8 py-12 shadow-sm"
+    >
+      <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#08a99d]">
+        Kurzer Moment
+      </p>
+
+      <h1 className="text-3xl font-extrabold tracking-tight">
+        Stop.
+      </h1>
+
+      <p className="mt-5 text-lg text-neutral-600 leading-relaxed">
+        Bevor du weitermachst —
+        <br />
+        nimm dir 10 Sekunden.
+      </p>
+
+      <p className="mt-4 text-neutral-500">
+        Schau kurz weg vom Bildschirm.
+        <br />
+        Atme einmal ruhig ein und aus.
+      </p>
+
+      <button
+        onClick={() => {
+          setShowIntervention(false);
+          setReturningStep(returningStep + 1);
+        }}
+        className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 text-white font-semibold hover:bg-neutral-800"
+      >
+        Weiter
+      </button>
+    </motion.div>
+  </section>
+) : !returningDone ? (
               <AnimatePresence mode="wait">
                 <motion.div
                   key={returningStep}
@@ -766,6 +811,32 @@ const handleAnswer = (answer: string) => {
           </section>
         ) : (
           <section className="mx-auto w-full max-w-3xl flex-1 py-12">
+            {skippedEmail ? (
+  <div className="mx-auto flex min-h-[70vh] items-center justify-center text-center">
+    <div className="rounded-[2rem] bg-[#f2fbfa] px-8 py-12 shadow-sm">
+      <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#08a99d]">
+        Für heute reicht das
+      </p>
+
+      <h1 className="text-4xl font-extrabold tracking-tight">
+        Nimm nur diesen einen Moment mit.
+      </h1>
+
+      <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">
+        Du musst jetzt nichts festhalten. Vielleicht reicht es für heute,
+        dass du dein Muster ein kleines Stück klarer gesehen hast.
+      </p>
+
+      <button
+        onClick={() => setSkippedEmail(false)}
+        className="mt-8 rounded-2xl bg-neutral-950 px-8 py-4 font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.98]"
+      >
+        Überblick nochmal ansehen
+      </button>
+    </div>
+  </div>
+) : (
+  <>
             <div className="text-center">
           <h2 className="text-4xl font-extrabold tracking-tight">
   Das ist gerade bei dir sichtbar geworden
@@ -834,9 +905,12 @@ const handleAnswer = (answer: string) => {
   Meinen Klarflow senden
 </button>
 
-              <button className="mt-3 w-full rounded-2xl py-3 text-sm text-neutral-400 hover:text-white">
-                Erst einmal ohne weiter
-              </button>
+              <button
+  onClick={() => setSkippedEmail(true)}
+  className="mt-3 w-full rounded-2xl py-3 text-sm text-neutral-400 hover:text-white"
+>
+  Erst einmal ohne weiter
+</button>
 
               {emailError && (
                 <p className="mt-3 text-center text-sm text-red-300">
@@ -855,7 +929,7 @@ const handleAnswer = (answer: string) => {
               </p>
             </div>
 
-            {emailSaved && (
+                    {emailSaved && (
               <div className="mt-6 rounded-3xl bg-neutral-100 p-6">
                 <h3 className="mb-3 text-lg font-bold">
                   Vorschau deiner E-Mail
@@ -872,6 +946,8 @@ const handleAnswer = (answer: string) => {
                 </div>
               </div>
             )}
+          </>
+        )}
           </section>
         )}
       </div>

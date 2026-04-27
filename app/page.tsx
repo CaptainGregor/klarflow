@@ -188,6 +188,13 @@ function getInterventionContent(answers: string[]) {
     button: "Weiter",
   };
 }
+function getChosenAction(answers: string[]) {
+  const choice = answers.find((answer) => answer.startsWith("Choice: "));
+
+  if (!choice) return null;
+
+  return choice.replace("Choice: ", "");
+}
 const visuals = [
   "/focus.png",
   "/stress.png",
@@ -337,6 +344,7 @@ const [showChoicePoint, setShowChoicePoint] = useState(false);
   const [skippedEmail, setSkippedEmail] = useState(false);
 const [started, setStarted] = useState(false);
 const intervention = getInterventionContent(returningAnswers);
+const chosenAction = getChosenAction(returningAnswers);
   useEffect(() => {
     const loadUserData = async (userEmail: string) => {
       const response = await fetch("/api/get-lead", {
@@ -796,6 +804,21 @@ const handleAnswer = (answer: string) => {
                   <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">
                     {generateReturningReflection(returningAnswers)}
                   </p>
+                  {chosenAction && (
+  <div className="mx-auto mt-5 max-w-xl rounded-2xl bg-white p-5 text-left">
+    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#08a99d]">
+      Dein bewusster Schritt
+    </p>
+
+    <p className="text-base font-semibold text-neutral-900">
+      {chosenAction}
+    </p>
+
+    <p className="mt-2 text-sm leading-relaxed text-neutral-500">
+      Nicht weil es perfekt war — sondern weil du den Autopilot kurz unterbrochen hast.
+    </p>
+  </div>
+)}
 <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-neutral-500">
   Achte morgen auf genau einen Moment —
   den, in dem dein Muster normalerweise automatisch startet.
